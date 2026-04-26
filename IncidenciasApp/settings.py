@@ -148,12 +148,4 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST="s4correo.profesionalhosting.com"
-EMAIL_USE_TLS=True
-EMAIL_PORT=465
-EMAIL_HOST_USER="nacho_it@esmovil.es"
-EMAIL_HOST_PASSWORD="Nacho_IT123"
-EMAIL_BACKEND_OPTIONS = {
-    'timeout': 15,  # En segundos, por ejemplo, 30 segundos
-}
+# La configuración SMTP ha sido eliminada por seguridad.
