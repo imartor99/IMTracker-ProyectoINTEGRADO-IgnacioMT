@@ -82,11 +82,11 @@ WSGI_APPLICATION = 'IncidenciasApp.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'incidenciasapp',
-        'USER': 'postgres',
-        'PASSWORD': '1234',
-        'HOST': 'localhost',
-        'DATABASE_PORT':'5432',
+        'NAME': os.environ.get('DB_NAME', 'imtracker'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'imtracker_super_secreta_2026'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': '5432',
     }
 }
 
