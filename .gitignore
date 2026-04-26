@@ -1,0 +1,7 @@
+venv/
+entorno/
+__pycache__/
+*.pyc
+.env
+media/
+capturas/
