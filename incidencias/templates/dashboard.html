@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Incidencias</title>
+
+
+    <!--Boostrap CSS-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.dataTables.min.css">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+
+    <!-- Opcional: Bootstrap 5 integración con DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.0/css/dataTables.bootstrap5.min.css">
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/2.3.0/js/dataTables.min.js"></script>
+
+    <!-- Iconos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Hoja externa de estilos CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilo_dashboard.css' %}">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+
+    
+
+</head>
+
+<body>
+    <!-- Cabecera -->
+    <div class="header">
+        <h2>Bienvenid@, {{ request.user.first_name }}. Departamento: {{ request.user.departamento }}</h2>
+
+        <!-- Logo centrado -->
+        <div class="logo-centro">
+            <img src="{% static 'img/user-icon.png' %}" alt="Usuario">
+        </div>
+
+        <!-- Boton LOGOUT -->
+        <a class="logout-link" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a>
+    </div>
+
+    <!--Contador de incidencias no finalizadas-->
+    {% if contador_no_finalizadas is not None %}
+    <div id="contador-wrapper" class="alert alert-info text-center">
+        <strong>Incidencias no finalizadas:</strong> {{ contador_no_finalizadas }}
+    </div>
+    {% endif %}
+
+    <!-- Botón crear incidencia -->
+    <button id="btnAbrirModal" class="crear-btn"><i class="bi bi-clipboard2-plus"></i> Crear nueva incidencia</button>
+
+    <!-- Aviso para usuarios que no tengan departamento asignado -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- BOTONES FILTROS-->
+    <!-- Todos pueden filtrar por estado -->
+    <div id="filtrosEstados">
+        <button class="filtro-estado" data-estado="">Todos</button>
+        <button class="filtro-estado" data-estado="pendiente">Pendiente</button>
+        <button class="filtro-estado" data-estado="en_curso">En curso</button>
+        <button class="filtro-estado" data-estado="testing">Testing</button>
+        <button class="filtro-estado" data-estado="faltan_datos">Faltan datos</button>
+        <button class="filtro-estado" data-estado="finalizada">Finalizada</button>
+    </div>
+
+    <!-- Solo usuarios IT o Manager ven los filtros por usuarios -->
+    {% if request.user.departamento == 'it' or request.user.departamento == 'manager' %}
+    <div id="filtrosUsuarios">
+        <!-- Aquí se insertan dinámicamente los botones de usuarios IT -->
+    </div>
+    {% endif %}
+
+    <!--Aviso de Exito al crear incidencia-->
+    <div id="mensajeExito">
+            Incidencia creada con éxito
+    </div>
+
+    <!-- DATATABLE -->
+    <table id="tablaIncidencias" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Usuario</th>
+                <th>Estado</th>
+                <th>Prioridad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inc in incidencias %}
+            <tr>
+                <td>{{ inc.id }}</td>
+                <td>{{ inc.titulo }}</td>
+                <td>{{ inc.descripcion|truncatechars:50 }}</td>
+                <td>{{ inc.creador.first_name }} {{ inc.creador.last_name }}</td>
+                <td>{{ inc.get_estado_display }}</td>
+                <td>{{ inc.get_prioridad_display }}</td>
+                <td>
+                    {% if request.user.departamento == 'it' or request.user.departamento == 'manager' %}
+                        <!-- Usuario IT o manager: todos los botones -->
+                        <button class="btnActualizar" data-id="{{ inc.id }}">
+                            <i class="bi bi-pencil-square"></i> Actualizar
+                        </button>
+
+                        <button class="btnAsignar" data-id="{{ inc.id }}">
+                            <i class="bi bi-person-plus-fill"></i> Asignar
+                        </button>
+
+                        <button class="btnBorrar" data-id="{{ inc.id }}">
+                            <i class="bi bi-clipboard2-minus-fill"></i> Borrar
+                        </button>
+
+                    {% elif request.user == inc.creador and inc.estado == 'pendiente' %}
+                        <!-- Usuario creador pero no IT/manager, solo puede borrar si está pendiente -->
+                        <button class="btnBorrar" data-id="{{ inc.id }}">
+                            <i class="bi bi-clipboard2-minus-fill"></i> Borrar
+                        </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal para crear incidencia -->
+    <div id="modalIncidencia">
+        <h3>Nueva Incidencia</h3>
+        <form id="formIncidencia" enctype="multipart/form-data" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Título:</label>
+                <input class="form-control" type="text" name="titulo" maxlength="30" required>
+            </div>
+            <div class="form-group">
+                <label>Descripción:</label>
+                <textarea class="form-control" name="descripcion" maxlength="200" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Prioridad:</label>
+                <select class="form-control" name="prioridad">
+                    <option value="alta">Alta</option>
+                    <option value="media">Media</option>
+                    <option value="baja">Baja</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Captura del problema:</label>
+                <input type="file" class="form-control" name="imagen">
+            </div>
+            <button class="btn btn-success" type="submit" id="btnGuardar">Guardar</button>
+            <button class="btn btn-default" type="button" id="btnCerrarModal">Cancelar</button>
+        </form>
+
+        <div id="errores"></div>
+    </div>
+
+    <!-- Modal detalle incidencia -->
+    <div id="modalDetalleIncidencia" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content p-3" data-incidencia-id="">
+                <div class="modal-header">
+                    <h5 id="modalTitulo" class="modal-title">Detalle Incidencia</h5>
+                    <button type="button" class="btn-close ms-auto" id="btnCerrarDetalle" aria-label="Cerrar"><i class="bi bi-x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formDetalleIncidencia">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="detalleTitulo" class="form-label">Título:</label>
+                            <input type="text" id="detalleTitulo" name="titulo" class="form-control" required readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detalleDescripcion" class="form-label">Descripción:</label>
+                            <textarea id="detalleDescripcion" name="descripcion" class="form-control" rows="3" required readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Usuario:</label>
+                            <p id="detalleUsuario"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detalleEstadoSelect">Estado:</label>
+
+                            <!-- SELECT visible si el usuario tiene permiso -->
+                            <select id="detalleEstadoSelect" class="form-control" style="display: none;">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en_curso">En curso</option>
+                                <option value="faltan_datos">Faltan datos</option>
+                                <option value="testing">Testing</option>
+                                <option value="finalizada">Finalizada</option>
+                            </select>
+
+                            <!-- P solo visible si NO tiene permiso -->
+                            <p id="detalleEstadoTexto" class="form-control-static" style="display: none;"></p>
+                        </div>
+
+                         <!-- En caso de el estado se ponga en faltan datos o finalizada-->
+                        <div class="mb-3" id="grupoObservacion" style="display: none;">
+                            <label for="detalleObservacion" class="form-label">Observación:</label>
+                            <textarea id="detalleObservacion" name="observacion" class="form-control" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Prioridad:</label>
+                            <p id="detallePrioridad"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label>Fecha creación:</label>
+                            <p id="detalleFechaCreacion"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label>Fecha asignación:</label>
+                            <p id="detalleFechaAsignacion"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label>Fecha resolución:</label>
+                            <p id="detalleFechaResolucion"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label>Imagen:</label>
+                            <div id="detalleImagenContenedor"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="btnGuardarDetalle"
+                            style="display:none;">Guardar cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Asignar -->
+    <div class="modal fade" id="modalAsignar" tabindex="-1" aria-labelledby="modalAsignarLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="formAsignar">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalAsignarLabel">Asignar incidencia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- ID oculto de la incidencia -->
+                        <input type="hidden" id="incidenciaIdAsignar" name="incidencia_id" value="">
+
+                        <!-- Información sobre el usuario asignado -->
+                        <!--<p><strong>Asignado a:</strong> <span id="infoAsignadoA"></span></p>-->
+
+                        <!-- Selector de usuarios -->
+                        <div class="mb-3">
+                            <label for="selectUsuario" class="form-label">Asignar a:</label>
+                            <select class="form-select" id="selectUsuario" name="usuario_id" required>
+                                <!-- Opciones cargadas por JS -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Asignar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!--Archivo JS-->
+    <script src="{% static 'js/dashboard.js' %}"></script>
+
+</body>
+
+</html>

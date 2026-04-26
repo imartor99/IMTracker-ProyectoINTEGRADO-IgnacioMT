@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/estilo_login.css' %}">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'img/faviconLOGIN.png' %}">
+</head>
+
+<body>
+    <div id="Contenedor">
+        <div class="Icon">
+            <span class="glyphicon glyphicon-user"></span>
+        </div>
+        <div class="ContentForm">
+            <form method="post">
+            {% csrf_token %}
+                
+                
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    {{ form.username }}
+                </div>
+
+                <br>
+
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                    {{ form.password }}
+                </div>
+
+                <br>
+
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
+                
+                <div class="opcioncontra"><a href="#">¿Olvidaste tu contraseña?</a></div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>
