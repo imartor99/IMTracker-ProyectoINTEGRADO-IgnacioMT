@@ -9,6 +9,8 @@ from .models import Incidencia, Observacion, UsuarioPersonalizado
 from django.db.models import Q         #muy util para filtrar datos en funcion a múltiples criterios
 from django.contrib import messages
 from django.contrib.auth import get_user_model        #interactuar de forma segura con el modelo de usuario sin importar si es predeterminado o personalizado
+from django.core.mail import send_mail
+from django.conf import settings
 
     
 # Login
@@ -400,3 +402,49 @@ def obtener_usuarios_filtros(request):
 
     # Otros departamentos no tienen permiso
     return JsonResponse({'usuarios': []})
+
+
+# Contactar IT (envío de email desde usuarios no-IT)
+@login_required
+@require_POST
+def contactar_it(request):
+    """Vista para que usuarios de otros departamentos envíen solicitudes al equipo IT por correo electrónico."""
+    asunto = request.POST.get('asunto', '').strip()
+    mensaje = request.POST.get('mensaje', '').strip()
+
+    if not asunto or not mensaje:
+        return JsonResponse({'success': False, 'error': 'Asunto y mensaje son obligatorios.'})
+
+    # Obtener emails de usuarios IT y Manager
+    usuarios_it = UsuarioPersonalizado.objects.filter(
+        Q(departamento='it') | Q(departamento='manager')
+    ).exclude(email='').values_list('email', flat=True)
+
+    destinatarios = list(usuarios_it)
+
+    if not destinatarios:
+        return JsonResponse({'success': False, 'error': 'No hay usuarios IT con email registrado.'})
+
+    # Componer email
+    remitente_nombre = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+    remitente_depto = request.user.departamento or 'Sin departamento'
+
+    cuerpo = (
+        f"Sugerencia de mejora de: {remitente_nombre}\n"
+        f"Departamento: {remitente_depto}\n"
+        f"Email: {request.user.email}\n"
+        f"{'=' * 40}\n\n"
+        f"{mensaje}"
+    )
+
+    try:
+        send_mail(
+            subject=f"[IMTracker - Sugerencia] {asunto}",
+            message=cuerpo,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=destinatarios,
+            fail_silently=False,
+        )
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Error al enviar el correo: {str(e)}'})

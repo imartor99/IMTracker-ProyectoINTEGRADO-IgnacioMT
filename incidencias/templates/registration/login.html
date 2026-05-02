@@ -5,47 +5,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>IMTracker - Iniciar Sesión</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/estilo_login.css' %}">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
+    <!-- Estilos BEM del Login -->
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static 'img/faviconLOGIN.png' %}">
+    <link rel="shortcut icon" href="{% static 'img/logoIMTracker.png' %}">
 </head>
 
-<body>
-    <div id="Contenedor">
-        <div class="Icon">
-            <span class="glyphicon glyphicon-user"></span>
-        </div>
-        <div class="ContentForm">
-            <form method="post">
-            {% csrf_token %}
-                
-                
-                <div class="input-group input-group-lg">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                    {{ form.username }}
-                </div>
+<body class="login-page">
 
-                <br>
-
-                <div class="input-group input-group-lg">
-                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                    {{ form.password }}
-                </div>
-
-                <br>
-
-                <button class="btn btn-lg btn-primary btn-block" type="submit">Entrar</button>
-                
-                <div class="opcioncontra"><a href="#">¿Olvidaste tu contraseña?</a></div>
-            </form>
-        </div>
+    <!-- Fondo animado con clip-path -->
+    <div class="login-page__background">
+        <div class="login-page__shape login-page__shape--1"></div>
+        <div class="login-page__shape login-page__shape--2"></div>
+        <div class="login-page__shape login-page__shape--3"></div>
     </div>
+
+    <!-- Contenedor principal con Grid Layout -->
+    <main class="login-page__container">
+
+        <!-- Panel izquierdo: Branding -->
+        <section class="login-branding">
+            <div class="login-branding__content">
+                <div class="login-branding__logo">
+                    <img src="{% static 'img/logoIMTracker.png' %}" alt="IMTracker Logo" class="login-branding__logo-img">
+                </div>
+                <h1 class="login-branding__title">IMTracker</h1>
+                <p class="login-branding__subtitle">Sistema de Gestión de Incidencias</p>
+                <div class="login-branding__features">
+                    <div class="login-branding__feature">
+                        <span class="login-branding__feature-dot"></span>
+                        Seguimiento en tiempo real
+                    </div>
+                    <div class="login-branding__feature">
+                        <span class="login-branding__feature-dot"></span>
+                        Gestión por departamentos
+                    </div>
+                    <div class="login-branding__feature">
+                        <span class="login-branding__feature-dot"></span>
+                        Análisis con IA integrada
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel derecho: Formulario -->
+        <section class="login-form">
+            <div class="login-form__wrapper">
+                <div class="login-form__header">
+                    <div class="login-form__avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                    </div>
+                    <h2 class="login-form__title">Bienvenido</h2>
+                    <p class="login-form__description">Inicia sesión para acceder al panel</p>
+                </div>
+
+                <form method="post" class="login-form__body">
+                    {% csrf_token %}
+
+                    {% if form.errors %}
+                    <div class="login-form__error">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="login-form__error-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                        <span>Usuario o contraseña incorrectos</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="login-form__field">
+                        <label for="id_username" class="login-form__label">Usuario</label>
+                        <div class="login-form__input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="login-form__input-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                            </svg>
+                            {{ form.username }}
+                        </div>
+                    </div>
+
+                    <div class="login-form__field">
+                        <label for="id_password" class="login-form__label">Contraseña</label>
+                        <div class="login-form__input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="login-form__input-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                            </svg>
+                            {{ form.password }}
+                        </div>
+                    </div>
+
+                    <button class="login-form__submit" type="submit">
+                        Iniciar Sesión
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="login-form__submit-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </button>
+
+                    <div class="login-form__footer">
+                        <a href="#" class="login-form__link">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
 </body>
 
 </html>

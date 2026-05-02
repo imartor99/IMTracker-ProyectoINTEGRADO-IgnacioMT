@@ -1,7 +1,7 @@
 # incidencias/urls.py
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import filtrar_incidencias, login_view, logout_view, dashboard, crear_incidencia_ajax, detalle_incidencia, editar_incidencia, borrar_incidencia, contador_no_finalizadas, obtener_incidencia, obtener_usuarios_filtros, obtener_usuarios_it, asignar_incidencia
+from .views import filtrar_incidencias, login_view, logout_view, dashboard, crear_incidencia_ajax, detalle_incidencia, editar_incidencia, borrar_incidencia, contador_no_finalizadas, obtener_incidencia, obtener_usuarios_filtros, obtener_usuarios_it, asignar_incidencia, contactar_it
 
 app_name = 'incidencias'
 
@@ -19,4 +19,6 @@ urlpatterns = [
     path('contador/', contador_no_finalizadas, name='contador'),
     path('filtrar_incidencias/', filtrar_incidencias, name='filtrar_incidencias'),
     path('obtener_usuarios_filtros/', obtener_usuarios_filtros, name='obtener_usuarios_filtros'),
+    path('contactar_it/', login_required(contactar_it), name='contactar_it'),
 ]
+

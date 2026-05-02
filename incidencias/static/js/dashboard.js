@@ -215,7 +215,7 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
         $.get(`/incidencia/${incidenciaId}/detalle/`, function (response) {
             if (response.success) {
                 const data = response.data;
-                const modalContent = $('#modalDetalleIncidencia .modal-content');
+                const modalContent = $('#modalDetalleIncidencia .modal-card__body');
 
                 modalContent.attr('data-incidencia-id', data.id);       // Asigna el ID de la incidencia al modal cada vez que se abre
                 $('#detalleTitulo').val(data.titulo).prop('readonly', !data.puede_editar_titulo);  //.prop accede a las propiedades del objeto/s que genera el navegador al procesar el HTML(DOM)
@@ -271,7 +271,7 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
     $('#btnCerrarDetalle').click(function () {
         $('#modalDetalleIncidencia').fadeOut();
         $('#formDetalleIncidencia')[0].reset();
-        $('#modalDetalleIncidencia .modal-content').removeAttr('data-incidencia-id'); // Limpiar el ID del modal al cerrarlo
+        $('#modalDetalleIncidencia .modal-card__body').removeAttr('data-incidencia-id'); // Limpiar el ID del modal al cerrarlo
     });
 
     // Abrir modal de detalle desde el botón Actualizar
@@ -284,7 +284,7 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
     // Guardar cambios del modal detalle/actualizar
     $('#formDetalleIncidencia').submit(function (e) {
         e.preventDefault();
-        const incidenciaId = $('#modalDetalleIncidencia .modal-content').attr('data-incidencia-id'); // Leer el ID directamente del atributo para evitar cache de jQuery
+        const incidenciaId = $('#modalDetalleIncidencia .modal-card__body').attr('data-incidencia-id'); // Leer el ID directamente del atributo para evitar cache de jQuery
 
 
         const estado = $('#detalleEstadoSelect').val();
@@ -327,26 +327,45 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
         });
     });
 
-    // BORRAR incidencias
-    $('#tablaIncidencias').on('click', '.btnBorrar', function () {
-        const id = $(this).data('id');
-        if (confirm('¿Estás seguro de que quieres borrar esta incidencia?')) {
-            $.ajax({
-                url: `/borrar_incidencia/${id}/`,
-                type: 'POST',
-                success: function (response) {
-                    if (response.success) {
-                        // Elimina la fila directamente sin recargar
-                        tabla.row($(this).parents('tr')).remove().draw();
-                        actualizarContador();
+    // BORRAR incidencias - Modal de confirmación personalizado
+    let borrarIncidenciaId = null;
+    let borrarFila = null;
 
-                    }
-                }.bind(this),
-                error: function () {
-                    alert('Error al intentar borrar la incidencia.');
+    $('#tablaIncidencias').on('click', '.btnBorrar', function () {
+        borrarIncidenciaId = $(this).data('id');
+        borrarFila = $(this).closest('tr');
+        $('#modalConfirmarBorrar').fadeIn();
+    });
+
+    // Confirmar borrado
+    $(document).on('click', '#btnConfirmarBorrar', function () {
+        if (!borrarIncidenciaId) return;
+        $.ajax({
+            url: `/borrar_incidencia/${borrarIncidenciaId}/`,
+            type: 'POST',
+            success: function (response) {
+                if (response.success) {
+                    tabla.row(borrarFila).remove().draw();
+                    actualizarContador();
+                    mostrarMensajeFlotante('Incidencia eliminada correctamente');
                 }
-            });
-        }
+            },
+            error: function () {
+                alert('Error al intentar borrar la incidencia.');
+            },
+            complete: function () {
+                $('#modalConfirmarBorrar').fadeOut();
+                borrarIncidenciaId = null;
+                borrarFila = null;
+            }
+        });
+    });
+
+    // Cancelar borrado
+    $(document).on('click', '#btnCancelarBorrar, #btnCerrarBorrar', function () {
+        $('#modalConfirmarBorrar').fadeOut();
+        borrarIncidenciaId = null;
+        borrarFila = null;
     });
 
     // ASIGNAR incidencias (vamos a usar AJAX pero de manera más simplificada con un atajo de jQuery)
@@ -387,10 +406,10 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             }
 
             // Mostrar modal
-            $('#modalAsignar').modal('show');
+            $('#modalAsignar').fadeIn();
         }).fail(function () {
             alert('Error al cargar usuarios o incidencia.');
-            $('#modalAsignar').modal('hide');
+            $('#modalAsignar').fadeOut();
         });
     });
 
@@ -401,8 +420,8 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
 
         $.post('/asignar_incidencia/', formData, function (response) {
             if (response.success) {
-                alert('Incidencia asignada correctamente.');
-                $('#modalAsignar').modal('hide');
+                mostrarMensajeFlotante('Incidencia asignada correctamente');
+                $('#modalAsignar').fadeOut();
 
                 // Redibuja la fila si el backend devuelve data
                 if (response.data) {

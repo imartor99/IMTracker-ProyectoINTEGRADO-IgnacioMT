@@ -149,3 +149,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # La configuración SMTP ha sido eliminada por seguridad.
+
+# Email (backend de consola para desarrollo, los emails se imprimen en el terminal)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@imtracker.local'
