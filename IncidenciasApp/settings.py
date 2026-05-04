@@ -13,7 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+# He importado gettext_lazy para poder marcar los nombres de los idiomas (Español/English) para su traducción
 from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -49,6 +51,8 @@ AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'  #le indica a Django que, e
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # He añadido LocaleMiddleware justo después del SessionMiddleware para que Django reconozca el idioma del usuario
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -68,6 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # He añadido este context processor para que la variable LANGUAGE_CODE esté disponible en mis plantillas HTML
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -113,8 +119,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-#LANGUAGE_CODE = 'en-us'
-LANGUAGE_CODE = 'es-eu'
+# He configurado el idioma por defecto a 'es' en formato corto
+LANGUAGE_CODE = 'es'
+
+# He definido los dos idiomas que voy a soportar en el proyecto: Español e Inglés
+LANGUAGES = [
+    ('es', _('Español')),
+    ('en', _('English')),
+]
+
+# He indicado la carpeta donde guardaré los archivos .po y .mo con las traducciones
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 TIME_ZONE = 'UTC'
 

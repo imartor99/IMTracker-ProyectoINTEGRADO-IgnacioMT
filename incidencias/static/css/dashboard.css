@@ -36,6 +36,16 @@
 }
 
 /* === RESET Y BASE === */
+.dashboard__mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--color-text-dark);
+    cursor: pointer;
+    padding: 0;
+}
+
 .dashboard-page {
     margin: 0;
     padding: 0;
@@ -779,6 +789,54 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     border-left: 3px solid var(--color-primary);
 }
 
+/* ==========================================================================
+   LANG SWITCHER DASHBOARD
+   ========================================================================== */
+
+.lang-switcher-dashboard {
+    display: flex;
+    align-items: center;
+}
+
+.lang-switcher-dashboard form {
+    display: flex;
+    background: var(--color-bg-alt);
+    padding: 0.25rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+}
+
+.lang-switcher-dashboard__btn {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.lang-switcher-dashboard__btn:hover {
+    color: var(--color-text);
+}
+
+.lang-switcher-dashboard__btn--active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+@media (max-width: 768px) {
+    .dashboard__header-left {
+        flex: 1;
+    }
+    .lang-switcher-dashboard {
+        display: none; /* Ocultar en móvil para ahorrar espacio si es necesario */
+    }
+}
+
 /* Modal pequeño (confirmación borrado) */
 .modal-card--small {
     max-width: 420px;
@@ -856,10 +914,33 @@ input[type="file"].modal-card__input::file-selector-button:hover {
         left: -260px;
         transition: left var(--transition-normal);
         z-index: 200;
+        box-shadow: var(--shadow-lg);
     }
 
     .sidebar--mobile-open {
         left: 0;
+    }
+
+    /* Ocultamos el botón de colapsar escritorio en móviles/tablets */
+    .sidebar__toggle {
+        display: none;
+    }
+
+    /* Fondo oscuro semitransparente al abrir el menú en móvil */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 150;
+        backdrop-filter: blur(2px);
+    }
+
+    .sidebar-overlay--active {
+        display: block;
     }
 
     .sidebar--collapsed {
@@ -874,6 +955,10 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     .modal-card__grid {
         grid-template-columns: 1fr;
     }
+
+    .dashboard__mobile-menu-btn {
+        display: block;
+    }
 }
 
 /* Móviles */
@@ -884,6 +969,10 @@ input[type="file"].modal-card__input::file-selector-button:hover {
         gap: 1rem;
     }
 
+    .dashboard__title {
+        font-size: 1.5rem;
+    }
+
     .dashboard__btn-create {
         width: 100%;
         justify-content: center;
@@ -892,6 +981,13 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     .dashboard__table-wrapper {
         overflow-x: auto;
         padding: 0.75rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Evitar que las columnas se aplasten demasiado en móvil */
+    .dashboard__table th, 
+    .dashboard__table td {
+        white-space: nowrap;
     }
 
     .dashboard__actions {

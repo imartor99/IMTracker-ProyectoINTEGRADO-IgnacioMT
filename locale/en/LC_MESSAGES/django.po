@@ -1,0 +1,330 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-04 11:13+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: IncidenciasApp/settings.py:122
+msgid "Español"
+msgstr "Spanish"
+
+#: IncidenciasApp/settings.py:123
+msgid "English"
+msgstr "English"
+
+#: incidencias/templates/dashboard.html:8
+msgid "IMTracker - Panel de Incidencias"
+msgstr "IMTracker - Incident Panel"
+
+#: incidencias/templates/dashboard.html:54
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: incidencias/templates/dashboard.html:59
+msgid "Administración"
+msgstr "Administration"
+
+#: incidencias/templates/dashboard.html:64
+msgid "Sugerencias"
+msgstr "Suggestions"
+
+#: incidencias/templates/dashboard.html:76
+msgid "Sin departamento"
+msgstr "No department"
+
+#: incidencias/templates/dashboard.html:81
+msgid "Cerrar sesión"
+msgstr "Log out"
+
+#: incidencias/templates/dashboard.html:92
+msgid "Panel de Incidencias"
+msgstr "Incident Panel"
+
+#: incidencias/templates/dashboard.html:93
+msgid "Bienvenid@"
+msgstr "Welcome"
+
+#: incidencias/templates/dashboard.html:93
+msgid "Departamento:"
+msgstr "Department:"
+
+#: incidencias/templates/dashboard.html:109
+#: incidencias/templates/dashboard.html:215
+msgid "Nueva Incidencia"
+msgstr "New Incident"
+
+#: incidencias/templates/dashboard.html:129
+msgid "Incidencias no finalizadas:"
+msgstr "Unfinished incidents:"
+
+#: incidencias/templates/dashboard.html:136
+#: incidencias/templates/dashboard.html:278
+msgid "Estado:"
+msgstr "Status:"
+
+#: incidencias/templates/dashboard.html:137
+msgid "Todos"
+msgstr "All"
+
+#: incidencias/templates/dashboard.html:138
+#: incidencias/templates/dashboard.html:280
+msgid "Pendiente"
+msgstr "Pending"
+
+#: incidencias/templates/dashboard.html:139
+#: incidencias/templates/dashboard.html:281
+msgid "En curso"
+msgstr "In progress"
+
+#: incidencias/templates/dashboard.html:140
+#: incidencias/templates/dashboard.html:283
+msgid "Testing"
+msgstr "Testing"
+
+#: incidencias/templates/dashboard.html:141
+#: incidencias/templates/dashboard.html:282
+msgid "Faltan datos"
+msgstr "Missing data"
+
+#: incidencias/templates/dashboard.html:142
+#: incidencias/templates/dashboard.html:284
+msgid "Finalizada"
+msgstr "Finished"
+
+#: incidencias/templates/dashboard.html:147
+msgid "Técnico:"
+msgstr "Technician:"
+
+#: incidencias/templates/dashboard.html:155
+msgid "Incidencia creada con éxito"
+msgstr "Incident created successfully"
+
+#: incidencias/templates/dashboard.html:163
+msgid "ID"
+msgstr "ID"
+
+#: incidencias/templates/dashboard.html:164
+msgid "Título"
+msgstr "Title"
+
+#: incidencias/templates/dashboard.html:165
+msgid "Descripción"
+msgstr "Description"
+
+#: incidencias/templates/dashboard.html:166
+#: incidencias/templates/registration/login.html:98
+msgid "Usuario"
+msgstr "User"
+
+#: incidencias/templates/dashboard.html:167
+msgid "Estado"
+msgstr "Status"
+
+#: incidencias/templates/dashboard.html:168
+msgid "Prioridad"
+msgstr "Priority"
+
+#: incidencias/templates/dashboard.html:169
+msgid "Acciones"
+msgstr "Actions"
+
+#: incidencias/templates/dashboard.html:185
+msgid "Actualizar"
+msgstr "Update"
+
+#: incidencias/templates/dashboard.html:188
+#: incidencias/templates/dashboard.html:342
+msgid "Asignar"
+msgstr "Assign"
+
+#: incidencias/templates/dashboard.html:191
+#: incidencias/templates/dashboard.html:197
+msgid "Borrar"
+msgstr "Delete"
+
+#: incidencias/templates/dashboard.html:222
+#: incidencias/templates/dashboard.html:266
+msgid "Título:"
+msgstr "Title:"
+
+#: incidencias/templates/dashboard.html:226
+#: incidencias/templates/dashboard.html:270
+msgid "Descripción:"
+msgstr "Description:"
+
+#: incidencias/templates/dashboard.html:230
+#: incidencias/templates/dashboard.html:293
+msgid "Prioridad:"
+msgstr "Priority:"
+
+#: incidencias/templates/dashboard.html:232
+msgid "Alta"
+msgstr "High"
+
+#: incidencias/templates/dashboard.html:233
+msgid "Media"
+msgstr "Medium"
+
+#: incidencias/templates/dashboard.html:234
+msgid "Baja"
+msgstr "Low"
+
+#: incidencias/templates/dashboard.html:238
+msgid "Captura del problema:"
+msgstr "Problem screenshot:"
+
+#: incidencias/templates/dashboard.html:245
+msgid "Guardar"
+msgstr "Save"
+
+#: incidencias/templates/dashboard.html:248
+#: incidencias/templates/dashboard.html:344
+#: incidencias/templates/dashboard.html:368
+#: incidencias/templates/dashboard.html:401
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: incidencias/templates/dashboard.html:259
+msgid "Detalle Incidencia"
+msgstr "Incident Details"
+
+#: incidencias/templates/dashboard.html:274
+msgid "Usuario:"
+msgstr "User:"
+
+#: incidencias/templates/dashboard.html:289
+msgid "Observación:"
+msgstr "Observation:"
+
+#: incidencias/templates/dashboard.html:298
+msgid "Fecha creación:"
+msgstr "Creation date:"
+
+#: incidencias/templates/dashboard.html:302
+msgid "Fecha asignación:"
+msgstr "Assignment date:"
+
+#: incidencias/templates/dashboard.html:306
+msgid "Fecha resolución:"
+msgstr "Resolution date:"
+
+#: incidencias/templates/dashboard.html:311
+msgid "Imagen:"
+msgstr "Image:"
+
+#: incidencias/templates/dashboard.html:317
+msgid "Guardar cambios"
+msgstr "Save changes"
+
+#: incidencias/templates/dashboard.html:328
+msgid "Asignar incidencia"
+msgstr "Assign incident"
+
+#: incidencias/templates/dashboard.html:335
+msgid "Asignar a:"
+msgstr "Assign to:"
+
+#: incidencias/templates/dashboard.html:354
+msgid "Confirmar eliminación"
+msgstr "Confirm deletion"
+
+#: incidencias/templates/dashboard.html:361
+msgid "¿Estás seguro de que quieres borrar esta incidencia?"
+msgstr "Are you sure you want to delete this incident?"
+
+#: incidencias/templates/dashboard.html:362
+msgid "Esta acción no se puede deshacer."
+msgstr "This action cannot be undone."
+
+#: incidencias/templates/dashboard.html:366
+msgid "Eliminar"
+msgstr "Delete"
+
+#: incidencias/templates/dashboard.html:378
+msgid "Buzón de Sugerencias"
+msgstr "Suggestion Box"
+
+#: incidencias/templates/dashboard.html:385
+msgid ""
+"¿Tienes una idea para mejorar el sistema? Comparte tu sugerencia con el "
+"equipo de IT."
+msgstr ""
+"Do you have an idea to improve the system? Share your suggestion with the IT team."
+
+#: incidencias/templates/dashboard.html:388
+msgid "Título de la sugerencia:"
+msgstr "Suggestion title:"
+
+#: incidencias/templates/dashboard.html:389
+msgid "Ej: Añadir filtro por fecha en el dashboard"
+msgstr "E.g.: Add a date filter in the dashboard"
+
+#: incidencias/templates/dashboard.html:392
+msgid "Descripción de la mejora:"
+msgstr "Description of the improvement:"
+
+#: incidencias/templates/dashboard.html:393
+msgid "Explica qué mejorarías y por qué sería útil para el equipo..."
+msgstr "Explain what you would improve and why it would be useful for the team..."
+
+#: incidencias/templates/dashboard.html:399
+msgid "Enviar sugerencia"
+msgstr "Send suggestion"
+
+#: incidencias/templates/registration/login.html:8
+msgid "IMTracker - Iniciar Sesión"
+msgstr "IMTracker - Log In"
+
+#: incidencias/templates/registration/login.html:54
+msgid "Sistema de Gestión de Incidencias"
+msgstr "Incident Management System"
+
+#: incidencias/templates/registration/login.html:58
+msgid "Seguimiento en tiempo real"
+msgstr "Real-time tracking"
+
+#: incidencias/templates/registration/login.html:62
+msgid "Gestión por departamentos"
+msgstr "Department management"
+
+#: incidencias/templates/registration/login.html:66
+msgid "Análisis con IA integrada"
+msgstr "Integrated AI analysis"
+
+#: incidencias/templates/registration/login.html:81
+msgid "Bienvenido"
+msgstr "Welcome"
+
+#: incidencias/templates/registration/login.html:82
+msgid "Inicia sesión para acceder al panel"
+msgstr "Log in to access the panel"
+
+#: incidencias/templates/registration/login.html:93
+msgid "Usuario o contraseña incorrectos"
+msgstr "Incorrect username or password"
+
+#: incidencias/templates/registration/login.html:108
+msgid "Contraseña"
+msgstr "Password"
+
+#: incidencias/templates/registration/login.html:118
+msgid "Iniciar Sesión"
+msgstr "Log In"
+
+#: incidencias/templates/registration/login.html:125
+msgid "¿Olvidaste tu contraseña?"
+msgstr "Forgot your password?"

@@ -1,24 +1,46 @@
 $(document).ready(function () {          //todo dentro de la funcion ready para asegurarnos que el DOM se carga antes que el JS
     
-    // INICIALIZAR datatable y configuro el lenguaje en español
+    // INICIALIZAR datatable y configuro el lenguaje en español/inglés dinámicamente
+    // He capturado la variable global CURRENT_LANGUAGE que inyecté en el HTML para saber qué idioma aplicar en DataTables
+    const isEnglish = window.CURRENT_LANGUAGE === 'en';
+    
+    // He creado este objeto condicional que usa los textos en inglés o español según la variable isEnglish
+    const dtLanguage = isEnglish ? {
+        "processing": "Processing...",
+        "lengthMenu": "Show _MENU_ entries",
+        "zeroRecords": "No matching records found",
+        "emptyTable": "No data available in table",
+        "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+        "infoEmpty": "Showing 0 to 0 of 0 entries",
+        "infoFiltered": "(filtered from _MAX_ total entries)",
+        "search": "Search:",
+        "paginate": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "previous": "Previous"
+        }
+    } : {
+        "processing": "Procesando...",
+        "lengthMenu": "Mostrar _MENU_ registros",
+        "zeroRecords": "No se encontraron resultados",
+        "emptyTable": "Ningún dato disponible en esta tabla",
+        "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+        "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+        "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+        "search": "Buscar:",
+        "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+        }
+    };
 
     const tabla = $('#tablaIncidencias').DataTable({
-        language: {
-            "processing": "Procesando...",
-            "lengthMenu": "Mostrar _MENU_ registros",
-            "zeroRecords": "No se encontraron resultados",
-            "emptyTable": "Ningún dato disponible en esta tabla",
-            "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
-            "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
-            "infoFiltered": "(filtrado de un total de _MAX_ registros)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
-            }
-        },
+        // He pasado la configuración dinámica dtLanguage al parámetro 'language' de DataTable
+        language: dtLanguage,
+        scrollX: true, // Permite scroll horizontal en móviles
 
         // Cada vez que redibuje la tabla(paginacion,recarga...)mantiene estilos css definidos por mi
         createdRow: function (row, data, dataIndex) {
@@ -28,6 +50,38 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             $(row).addClass(estado).attr('id', `incidencia-${id}`);
         }
     });
+
+    // Función auxiliar para generar los botones de acción con sus clases CSS BEM y traducciones correctas
+    function generarBotonesAcciones(inc) {
+        let acciones = '<div class="dashboard__actions">';
+        const txtActualizar = isEnglish ? 'Update' : 'Actualizar';
+        const txtAsignar = isEnglish ? 'Assign' : 'Asignar';
+        const txtBorrar = isEnglish ? 'Delete' : 'Borrar';
+
+        if (inc.puede_actualizar) {
+            acciones += `
+            <button class="btnActualizar dashboard__action-btn dashboard__action-btn--edit" data-id="${inc.id}">
+                <i class="bi bi-pencil-square"></i> ${txtActualizar}
+            </button>`;
+        }
+
+        if (inc.puede_asignar) {
+            acciones += `
+            <button class="btnAsignar dashboard__action-btn dashboard__action-btn--assign" data-id="${inc.id}">
+                <i class="bi bi-person-plus-fill"></i> ${txtAsignar}
+            </button>`;
+        }
+
+        if (inc.puede_borrar) {
+            acciones += `
+            <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="${inc.id}">
+                <i class="bi bi-trash3"></i> ${txtBorrar}
+            </button>`;
+        }
+        
+        acciones += '</div>';
+        return acciones;
+    }
 
     // Mostrar modal
     $('#btnAbrirModal').click(() => $('#modalIncidencia').fadeIn());
@@ -50,34 +104,14 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             url: "/crear_incidencia_ajax/",   //url a la que se envia petición
             type: "POST",     //método de petición
             data: formData,    // datos a enviar
-            processData: false,    // Si no pongo estas dos ultimas propoiedades , jQuery intenta convertir el formData a un string
+            processData: false,    // Si no pongo estas dos ultimas propiedades , jQuery intenta convertir el formData a un string
             contentType: false,    // y Django no podra procesar los datos correctamente 
             success: function (response) {
                 if (response.success) {
                     const inc = response.data;
 
-                    let acciones = '';
-
-                    if (inc.puede_actualizar) {
-                        acciones += `
-                        <button class="btnActualizar" data-id="${inc.id}">
-                            <i class="bi bi-pencil-square"></i> Actualizar
-                        </button>`;
-                    }
-
-                    if (inc.puede_asignar) {
-                        acciones += `
-                        <button class="btnAsignar" data-id="${inc.id}">
-                            <i class="bi bi-person-plus-fill"></i> Asignar
-                        </button>`;
-                    }
-
-                    if (inc.puede_borrar) {
-                        acciones += `
-                        <button class="btnBorrar" data-id="${inc.id}">
-                            <i class="bi bi-clipboard2-minus-fill"></i> Borrar
-                        </button>`;
-                    }
+                    // Generar botones usando la función auxiliar
+                    let acciones = generarBotonesAcciones(inc);
 
                     const fila = [
                         inc.id,
@@ -104,7 +138,9 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
                     $('#formIncidencia')[0].reset();
                     $('#errores').html('');
                     actualizarContador();
-                    mostrarMensajeFlotante('Incidencia creada con éxito');
+                    // Selecciono el mensaje según el idioma activo
+                    const msg = isEnglish ? 'Incident created successfully' : 'Incidencia creada con éxito';
+                    mostrarMensajeFlotante(msg);
 
                 } else if (response.errors) {
                     let errores = '';
@@ -169,20 +205,8 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             return;
         }
 
-        const acciones = `
-            <button class="btnActualizar" data-id="${data.id}">
-                <i class="bi bi-pencil-square"></i> Actualizar
-            </button>
-            <button class="btnAsignar" data-id="${data.id}">
-                <i class="bi bi-person-plus-fill"></i> Asignar
-            </button>
-            ${data.puede_borrar
-                ? `<button class="btnBorrar" data-id="${data.id}">
-                    <i class="bi bi-clipboard2-minus-fill"></i> Borrar
-                </button>`
-                : ''
-            }
-        `;
+        // Generar botones usando la función auxiliar
+        const acciones = generarBotonesAcciones(data);
 
         const nuevaData = [
             data.id,
@@ -305,7 +329,8 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             },
             success: function (response) {
                 if (response.success) {
-                    alert('Incidencia actualizada correctamente.');
+                    // Traducción de la alerta
+                    alert(isEnglish ? 'Incident updated successfully.' : 'Incidencia actualizada correctamente.');
                     $('#modalDetalleIncidencia').fadeOut();
 
                     if (response.data) {
@@ -347,7 +372,9 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
                 if (response.success) {
                     tabla.row(borrarFila).remove().draw();
                     actualizarContador();
-                    mostrarMensajeFlotante('Incidencia eliminada correctamente');
+                    // Traducción del mensaje flotante
+                    const msg = isEnglish ? 'Incident deleted successfully' : 'Incidencia eliminada correctamente';
+                    mostrarMensajeFlotante(msg);
                 }
             },
             error: function () {
@@ -420,7 +447,9 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
 
         $.post('/asignar_incidencia/', formData, function (response) {
             if (response.success) {
-                mostrarMensajeFlotante('Incidencia asignada correctamente');
+                // Traducción del mensaje flotante
+                const msg = isEnglish ? 'Incident assigned successfully' : 'Incidencia asignada correctamente';
+                mostrarMensajeFlotante(msg);
                 $('#modalAsignar').fadeOut();
 
                 // Redibuja la fila si el backend devuelve data
@@ -465,28 +494,8 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
                     tabla.clear();
 
                     response.incidencias.forEach(inc => {
-                        let acciones = '';
-
-                        if (inc.puede_actualizar) {
-                            acciones += `
-                            <button class="btnActualizar" data-id="${inc.id}">
-                                <i class="bi bi-pencil-square"></i> Actualizar
-                            </button>`;
-                        }
-
-                        if (inc.puede_asignar) {
-                            acciones += `
-                            <button class="btnAsignar" data-id="${inc.id}">
-                                <i class="bi bi-person-plus-fill"></i> Asignar
-                            </button>`;
-                        }
-
-                        if (inc.puede_borrar) {
-                            acciones += `
-                            <button class="btnBorrar" data-id="${inc.id}">
-                                <i class="bi bi-clipboard2-minus-fill"></i> Borrar
-                            </button>`;
-                        }
+                        // Generar botones usando la función auxiliar
+                        let acciones = generarBotonesAcciones(inc);
 
                         tabla.row.add([
                             inc.id,

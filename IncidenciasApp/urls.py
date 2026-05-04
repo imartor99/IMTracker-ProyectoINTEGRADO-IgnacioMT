@@ -30,7 +30,7 @@ urlpatterns = [
 
     path('', include(('incidencias.urls', 'incidencias'), namespace='incidencias')),
 
-    # URL para login (vista personalizada)
+    # URL para login
     path('login/', login_view, name='login'),
 
     # Rutas para las vistas de autenticación predeterminadas de Django
@@ -38,6 +38,10 @@ urlpatterns = [
 
     #Logout después del login
     path('logout/', logout_then_login, name='logout'),
+
+    # Internacionalización
+    # He añadido esta ruta de Django para habilitar la vista 'set_language', que recibe la petición del selector de idiomas
+    path('i18n/', include('django.conf.urls.i18n')),
 
 ]
 
