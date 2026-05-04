@@ -55,7 +55,7 @@ def dashboard(request):
     # Contador solo si el usuario pertenece al departamento IT o es manager de IT
     contador_no_finalizadas = None
     if request.user.is_authenticated and (request.user.departamento or '').strip().lower() in ['it', 'manager']: #esto es para que no tenga en cuenta los espacios en blanco del departamento 
-        contador_no_finalizadas = Incidencia.objects.exclude(estado='finalizada').count()
+        contador_no_finalizadas = Incidencia.objects.filter(oculta=False).exclude(estado='finalizada').count()
 
     return render(request, 'dashboard.html', {
         'incidencias': incidencias,
@@ -65,7 +65,7 @@ def dashboard(request):
 # Contador Incidencias no finalizadas
 @login_required
 def contador_no_finalizadas(request):
-    contador = Incidencia.objects.exclude(estado='finalizada').count()
+    contador = Incidencia.objects.filter(oculta=False).exclude(estado='finalizada').count()
     
     # Si la petición es AJAX, devolvemos JSON con el contador
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':      
