@@ -9,6 +9,11 @@ ENV PYTHONUNBUFFERED=1
 # Creamos una carpeta dentro de la cápsula llamada /app y nos movemos a ella
 WORKDIR /app
 
+# Instalamos las librerías del sistema que WeasyPrint necesita para crear los PDFs
+RUN apt-get update && apt-get install -y \
+    libpango-1.0-0 libpangoft2-1.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copiamos primero la lista de requisitos (para que Docker lo guarde en caché y vaya más rápido)
 COPY requirements.txt /app/
 
