@@ -210,8 +210,8 @@
                                 <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="{{ inc.id }}">
                                     <i class="bi bi-trash3"></i> {% trans "Borrar" %}
                                 </button>
-                                <a href="{% url 'incidencias:exportar_ticket_pdf' inc.id %}" target="_blank" class="dashboard__action-btn" style="color: #6366f1; border-color: #6366f1; text-decoration: none;">
-                                    <i class="bi bi-file-earmark-pdf"></i> {% trans "PDF" %}
+                                <a href="{% url 'incidencias:exportar_ticket_pdf' inc.id %}" target="_blank" class="dashboard__action-btn dashboard__action-btn--pdf">
+                                    <i class="bi bi-file-earmark-pdf-fill"></i> {% trans "Ticket PDF" %}
                                 </a>
                             </div>
                             {% elif request.user == inc.creador and inc.estado == 'pendiente' %}

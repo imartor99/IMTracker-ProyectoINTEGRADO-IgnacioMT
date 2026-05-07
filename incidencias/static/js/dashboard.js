@@ -81,8 +81,8 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
         
         // Botón de PDF siempre disponible para IT/Manager si lo están viendo
         acciones += `
-        <a href="/incidencia/${inc.id}/pdf/" target="_blank" class="dashboard__action-btn" style="color: #6366f1; border-color: #6366f1; text-decoration: none;">
-            <i class="bi bi-file-earmark-pdf"></i> PDF
+        <a href="/incidencia/${inc.id}/pdf/" target="_blank" class="dashboard__action-btn dashboard__action-btn--pdf">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Ticket PDF
         </a>`;
         
         acciones += '</div>';
