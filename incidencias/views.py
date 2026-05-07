@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST      #asegura que una vista solo sea llamada con un método HTTP POST
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+import csv
 from .forms import LoginForm, IncidenciaForm
 from .models import Incidencia, Observacion, UsuarioPersonalizado
 from django.db.models import Q         #muy util para filtrar datos en funcion a múltiples criterios
@@ -448,3 +449,40 @@ def contactar_it(request):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error al enviar el correo: {str(e)}'})
+
+# --- GENERACION DE PDFs Y CSV --- 
+
+@login_required
+def exportar_csv(request):
+    # Preparamos la respuesta HTTP para que el navegador descargue un archivo CSV
+    response = HttpResponse(content_type='text/csv')
+    
+    # Añadimos la fecha actual al nombre del archivo
+    fecha_actual = timezone.now().strftime("%Y%m%d")
+    response['Content-Disposition'] = f'attachment; filename="incidencias_{fecha_actual}.csv"'
+
+    # Creamos el escritor de CSV, usando punto y coma para que Excel lo abra bien
+    writer = csv.writer(response, delimiter=';')
+
+    # Escribimos los encabezados de las columnas
+    writer.writerow(['ID', 'Titulo', 'Descripcion', 'Estado', 'Prioridad', 'Departamento', 'Usuario Creador', 'Asignado A', 'Fecha Creacion', 'Fecha Resolucion'])
+
+    # Obtenemos las incidencias ordenadas por fecha
+    incidencias = Incidencia.objects.all().order_by('-fecha_creacion')
+
+    # Recorremos cada incidencia y escribimos una fila
+    for inc in incidencias:
+        writer.writerow([
+            inc.id,
+            inc.titulo,
+            inc.descripcion,
+            inc.get_estado_display(),
+            inc.get_prioridad_display(),
+            inc.creador.departamento if hasattr(inc, 'creador') and inc.creador else 'Sin asignar',
+            inc.creador.username if hasattr(inc, 'creador') and inc.creador else 'Desconocido',
+            inc.asignado_a.username if inc.asignado_a else 'Sin asignar',
+            inc.fecha_creacion.strftime("%Y-%m-%d %H:%M:%S") if inc.fecha_creacion else '',
+            inc.fecha_resolucion.strftime("%Y-%m-%d %H:%M:%S") if inc.fecha_resolucion else 'No resuelta'
+        ])
+
+    return response
