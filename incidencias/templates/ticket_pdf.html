@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket de Incidencia #{{ incidencia.id }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #334155;
+            line-height: 1.5;
+        }
+        .header {
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4f46e5;
+            margin: 0;
+            font-size: 24px;
+        }
+        .meta-info {
+            text-align: right;
+            font-size: 12px;
+            color: #64748b;
+            margin-top: -30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #6366f1;
+            text-transform: uppercase;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 5px;
+        }
+        .field {
+            margin-bottom: 8px;
+        }
+        .field strong {
+            color: #1e293b;
+        }
+        .desc-box {
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            min-height: 80px;
+        }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            background-color: #64748b;
+        }
+        .badge.alta { background-color: #ef4444; }
+        .badge.media { background-color: #f59e0b; }
+        .badge.baja { background-color: #10b981; }
+        
+        .badge.pendiente { background-color: #f43f5e; }
+        .badge.en_curso { background-color: #3b82f6; }
+        .badge.finalizada { background-color: #10b981; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>IMTracker - Ticket #{{ incidencia.id }}</h1>
+    </div>
+    
+    <div class="meta-info">
+        Generado el: {{ fecha_impresion }}
+    </div>
+
+    <!-- Información General -->
+    <div class="section">
+        <h2 class="section-title">Información General</h2>
+        <div class="field">
+            <strong>Título:</strong> {{ incidencia.titulo }}
+        </div>
+        <div class="field">
+            <strong>Estado:</strong> 
+            <span class="badge {{ incidencia.estado }}">{{ incidencia.get_estado_display }}</span>
+        </div>
+        <div class="field">
+            <strong>Prioridad:</strong> 
+            <span class="badge {{ incidencia.prioridad }}">{{ incidencia.get_prioridad_display }}</span>
+        </div>
+        <div class="field">
+            <strong>Fecha de Creación:</strong> {{ incidencia.fecha_creacion|date:"d/m/Y H:i" }}
+        </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="section">
+        <h2 class="section-title">Descripción Detallada</h2>
+        <div class="desc-box">
+            {{ incidencia.descripcion|linebreaks }}
+        </div>
+    </div>
+
+    <!-- Involucrados -->
+    <div class="section">
+        <h2 class="section-title">Involucrados</h2>
+        <div class="field">
+            <strong>Reportado por:</strong> {{ incidencia.creador.first_name }} {{ incidencia.creador.last_name }} ({{ incidencia.creador.departamento|title|default:"Sin departamento" }})
+        </div>
+        <div class="field">
+            <strong>Asignado a:</strong> 
+            {% if incidencia.asignado_a %}
+                {{ incidencia.asignado_a.first_name }} {{ incidencia.asignado_a.last_name }} (IT)
+            {% else %}
+                <em>Sin asignar</em>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>
