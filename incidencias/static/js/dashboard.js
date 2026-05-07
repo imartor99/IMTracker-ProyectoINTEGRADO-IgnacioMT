@@ -79,6 +79,12 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
             </button>`;
         }
         
+        // Botón de PDF siempre disponible para IT/Manager si lo están viendo
+        acciones += `
+        <a href="/incidencia/${inc.id}/pdf/" target="_blank" class="dashboard__action-btn" style="color: #6366f1; border-color: #6366f1; text-decoration: none;">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+        </a>`;
+        
         acciones += '</div>';
         return acciones;
     }
