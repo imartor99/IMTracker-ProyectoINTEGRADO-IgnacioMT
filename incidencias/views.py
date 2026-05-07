@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST      #asegura que una vista solo sea llamada con un método HTTP POST
 from django.http import JsonResponse, HttpResponse
 import csv
+from django.template.loader import render_to_string
+from weasyprint import HTML
 from .forms import LoginForm, IncidenciaForm
 from .models import Incidencia, Observacion, UsuarioPersonalizado
 from django.db.models import Q         #muy util para filtrar datos en funcion a múltiples criterios
@@ -485,4 +487,28 @@ def exportar_csv(request):
             inc.fecha_resolucion.strftime("%Y-%m-%d %H:%M:%S") if inc.fecha_resolucion else 'No resuelta'
         ])
 
+    return response
+
+@login_required
+def exportar_ticket_pdf(request, incidencia_id):
+    # Obtenemos la incidencia por su ID
+    incidencia = get_object_or_404(Incidencia, id=incidencia_id)
+    fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
+    
+    # Construimos el HTML pasándole los datos de la incidencia a la plantilla
+    html_string = render_to_string('ticket_pdf.html', {
+        'incidencia': incidencia,
+        'fecha_impresion': fecha_actual
+    })
+    
+    # Preparamos la respuesta HTTP configurada para devolver un PDF
+    response = HttpResponse(content_type='application/pdf')
+    nombre_archivo = f'ticket_incidencia_{incidencia.id}.pdf'
+    
+    # "attachment" hace que se descargue automáticamente. "inline" lo muestra en el navegador.
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+    
+    # Usamos WeasyPrint para convertir el HTML en un PDF
+    HTML(string=html_string).write_pdf(response)
+    
     return response
