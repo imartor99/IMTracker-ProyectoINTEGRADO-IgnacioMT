@@ -117,6 +117,13 @@
                     </form>
                 </div>
 
+                {% if request.user.departamento == 'manager' or request.user.departamento == 'it' %}
+                <a href="{% url 'incidencias:exportar_csv' %}" class="dashboard__btn-create" style="background-color: #10b981;">
+                    <i class="bi bi-file-earmark-excel"></i>
+                    {% trans "Exportar CSV" %}
+                </a>
+                {% endif %}
+
                 <button id="btnAbrirModal" class="dashboard__btn-create">
                     <i class="bi bi-plus-lg"></i>
                     {% trans "Nueva Incidencia" %}
@@ -203,6 +210,9 @@
                                 <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="{{ inc.id }}">
                                     <i class="bi bi-trash3"></i> {% trans "Borrar" %}
                                 </button>
+                                <a href="{% url 'incidencias:exportar_ticket_pdf' inc.id %}" target="_blank" class="dashboard__action-btn" style="color: #6366f1; border-color: #6366f1; text-decoration: none;">
+                                    <i class="bi bi-file-earmark-pdf"></i> {% trans "PDF" %}
+                                </a>
                             </div>
                             {% elif request.user == inc.creador and inc.estado == 'pendiente' %}
                             <div class="dashboard__actions">
