@@ -603,3 +603,46 @@
         height: 26px;
     }
 }
+
+/* === Selector de Idioma (Login) === */
+.lang-switcher {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 0.25rem;
+    display: flex;
+}
+
+.lang-switcher form {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+}
+
+.lang-switcher__btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.lang-switcher__btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.lang-switcher__btn--active {
+    background: var(--color-primary);
+    color: white;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
