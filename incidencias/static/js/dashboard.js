@@ -279,7 +279,7 @@ $(document).ready(function () {          //todo dentro de la funcion ready para 
                 $('#detalleFechaResolucion').text(data.fecha_resolucion);
 
                 if (data.imagen_url) {
-                    $('#detalleImagenContenedor').html(`<img src="${data.imagen_url}" alt="Imagen incidencia" class="img-fluid">`);
+                    $('#detalleImagenContenedor').html(`<img src="${data.imagen_url}" alt="Imagen incidencia" class="modal-card__image">`);
                 } else {
                     $('#detalleImagenContenedor').html('<p>No hay imagen.</p>');
                 }

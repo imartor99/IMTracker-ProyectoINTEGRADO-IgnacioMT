@@ -613,6 +613,16 @@ table#tablaIncidencias tr.finalizada>td {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-card form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
 }
 
 @keyframes modalIn {
@@ -626,6 +636,7 @@ table#tablaIncidencias tr.finalizada>td {
     align-items: center;
     padding: 1.25rem 1.5rem;
     border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
 }
 
 .modal-card__title {
@@ -646,6 +657,16 @@ table#tablaIncidencias tr.finalizada>td {
     transition: all var(--transition-fast);
 }
 
+.modal-card__image {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    margin-top: 0.5rem;
+    border: 1px solid var(--color-border);
+    display: block;
+}
+
 .modal-card__close:hover {
     background: #f1f5f9;
     color: var(--color-text-dark);
@@ -656,6 +677,7 @@ table#tablaIncidencias tr.finalizada>td {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow-y: auto;
 }
 
 .modal-card__field {
@@ -729,6 +751,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     gap: 0.75rem;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--color-border);
+    flex-shrink: 0;
 }
 
 .modal-card__btn {
