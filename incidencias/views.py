@@ -232,6 +232,8 @@ def editar_incidencia(request, incidencia_id):
                 'estado_display': incidencia.get_estado_display(),
                 'prioridad_display': incidencia.get_prioridad_display(),
                 'puede_borrar': incidencia.creador == request.user or request.user.departamento in ['it', 'manager'],
+                'puede_actualizar': request.user.departamento in ['it', 'manager'],
+                'puede_asignar': request.user.departamento in ['it', 'manager'],
             },
             'actualizar_contador': actualizar_contador,  # NUEVO campo
         })
@@ -341,6 +343,8 @@ def asignar_incidencia(request):
             'estado_display': incidencia.get_estado_display(),
             'prioridad_display': incidencia.get_prioridad_display(),
             'puede_borrar': request.user.departamento in ['it', 'manager'],
+            'puede_actualizar': request.user.departamento in ['it', 'manager'],
+            'puede_asignar': request.user.departamento in ['it', 'manager'],
         }
     })
 
