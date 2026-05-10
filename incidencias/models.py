@@ -45,6 +45,9 @@ class Incidencia(models.Model):
 
     oculta = models.BooleanField(default=False)  # Para el borrado "no destructivo"
 
+    # Campos IA (n8n)
+    resumen_ia = models.TextField(null=True, blank=True)
+    prioridad_sugerida_ia = models.CharField(max_length=10, choices=PRIORIDADES, null=True, blank=True)
     def __str__(self):
         return f"#{self.id} - {self.titulo}"
     
