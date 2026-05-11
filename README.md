@@ -17,14 +17,14 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 ## Stack Tecnológico
 
 * **Backend:** Python, Django (Manejo de vistas, modelos, y autenticación).
-* **Frontend:** HTML5, CSS3, **Tailwind CSS** (generación de utilidades mediante CLI), JavaScript (ES6+, DOMContentLoaded).
-* **Librerías Extra:** jQuery (estrictamente para peticiones AJAX y DataTables), DataTables, Bootstrap Icons.
+* **Frontend:** HTML5, CSS3, **Tailwind CSS** (generación de utilidades mediante CLI), **Vanilla JavaScript** (arquitectura estructurada y modular).
+* **Librerías Extra:** jQuery (estrictamente como apoyo para peticiones AJAX, inicialización de DataTables y animaciones de modales), DataTables, Bootstrap Icons.
 
 ## Estructura del Proyecto
 
 El proyecto sigue la estructura estándar de una aplicación de Django, destacando:
 * `incidencias/views.py`: Lógica principal del servidor y endpoints AJAX.
-* `incidencias/static/js/dashboard.js`: Controlador principal de la vista(frontend), refactorizado siguiendo las buenas prácticas de programación, el principio de Responsabilidad Única y el enfoque MVC.
+* `incidencias/static/js/dashboard.js`: Controlador principal del frontend con **arquitectura híbrida**: estructurado bajo estándares de Vanilla JavaScript (Responsabilidad Única, DOMContentLoaded) pero utilizando jQuery como motor de apoyo para DataTables y AJAX.
 * `incidencias/static/css/`: Hojas de estilo que combinan CSS modular clásico (`dashboard.css`, `login.css`) con el framework **Tailwind CSS** (`output.css`) para agilizar el maquetado y diseño responsivo.
 
 ## Seguridad y Buenas Prácticas
