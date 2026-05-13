@@ -205,6 +205,29 @@ function abrirModalDetalle(incidenciaId) {
       }
 
       $("#detallePrioridad").text(data.prioridad_display);
+
+      // Lógica de Inteligencia Artificial (n8n + Ollama)
+      if (data.resumen_ia) {
+        $("#grupoIA").removeClass("modal-card__field--hidden");
+        $("#detalleResumenIA").text(data.resumen_ia);
+        
+        // Capitalizar la primera letra para que quede bien ("Alta", "Media", "Baja")
+        const prioridadIADisplay = data.prioridad_sugerida_ia 
+          ? data.prioridad_sugerida_ia.charAt(0).toUpperCase() + data.prioridad_sugerida_ia.slice(1) 
+          : "Desconocida";
+          
+        $("#detallePrioridadIA").text(prioridadIADisplay);
+
+        // Mostrar aviso si hay discrepancia entre la prioridad del usuario y la sugerida por la IA
+        if (data.prioridad_sugerida_ia && data.prioridad !== data.prioridad_sugerida_ia) {
+            $("#avisoDiscrepanciaIA").removeClass("modal-card__text--hidden");
+        } else {
+            $("#avisoDiscrepanciaIA").addClass("modal-card__text--hidden");
+        }
+      } else {
+        $("#grupoIA").addClass("modal-card__field--hidden");
+      }
+
       $("#detalleFechaCreacion").text(data.fecha_creacion);
       $("#detalleFechaAsignacion").text(data.fecha_asignacion);
       $("#detalleFechaResolucion").text(data.fecha_resolucion);
