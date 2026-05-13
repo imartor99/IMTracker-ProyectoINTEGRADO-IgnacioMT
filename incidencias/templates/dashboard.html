@@ -70,6 +70,15 @@
             {% endif %}
         </nav>
 
+        <!-- Sección de próximos festivos (se rellena por JS con datos de la API Nager.Date) -->
+        <div id="seccionFestivos" class="sidebar__festivos">
+            <h3 class="sidebar__festivos-title">
+                <i class="bi bi-calendar-event"></i>
+                <span>{% trans "Próximos festivos" %}</span>
+            </h3>
+            <ul id="listaFestivos" class="sidebar__festivos-list"></ul>
+        </div>
+
         <div class="sidebar__footer">
             <div class="sidebar__user">
                 <div class="sidebar__user-avatar">
@@ -92,7 +101,7 @@
 
         <!-- Header -->
         <header class="dashboard__header">
-            <div class="dashboard__header-left" style="display: flex; align-items: center; gap: 1rem;">
+            <div class="dashboard__header-left">
                 <!-- Botón hamburguesa solo visible en móvil -->
                 <button class="dashboard__mobile-menu-btn" id="mobileMenuBtn">
                     <i class="bi bi-list"></i>
@@ -103,11 +112,11 @@
                 </div>
             </div>
             
-            <div style="display: flex; gap: 1rem; align-items: center;">
+            <div class="dashboard__header-right">
                 <!-- Selector de Idioma -->
                 <!-- He creado este formulario para enviar por método POST la preferencia de idioma a la vista nativa de Django -->
                 <div class="lang-switcher-dashboard">
-                    <form action="{% url 'set_language' %}" method="post" style="display: flex; gap: 0.25rem;">
+                    <form action="{% url 'set_language' %}" method="post" class="lang-switcher-dashboard__form">
                         {% csrf_token %}
                         <!-- Redirige a la misma página donde estábamos (dashboard) al cambiar el idioma -->
                         <input name="next" type="hidden" value="{{ redirect_to }}">
@@ -118,7 +127,7 @@
                 </div>
 
                 {% if request.user.departamento == 'manager' or request.user.departamento == 'it' %}
-                <a href="{% url 'incidencias:exportar_csv' %}" class="dashboard__btn-create" style="background-color: #10b981;">
+                <a href="{% url 'incidencias:exportar_csv' %}" class="dashboard__btn-create dashboard__btn-create--csv">
                     <i class="bi bi-file-earmark-excel"></i>
                     {% trans "Exportar CSV" %}
                 </a>
@@ -141,6 +150,9 @@
             {% endfor %}
         </div>
         {% endif %}
+
+        <!-- Banner de día festivo (oculto por defecto, se activa desde JS si la API detecta festivo) -->
+        <div id="bannerFestivo" class="dashboard__banner-festivo"></div>
 
         <!-- Contador -->
         {% if contador_no_finalizadas is not None %}
@@ -299,16 +311,16 @@
                     </div>
                     <div class="modal-card__field">
                         <label for="detalleEstadoSelect" class="modal-card__label">{% trans "Estado:" %}</label>
-                        <select id="detalleEstadoSelect" class="modal-card__input" style="display: none;">
+                        <select id="detalleEstadoSelect" class="modal-card__input modal-card__input--hidden">
                             <option value="pendiente">{% trans "Pendiente" %}</option>
                             <option value="en_curso">{% trans "En curso" %}</option>
                             <option value="faltan_datos">{% trans "Faltan datos" %}</option>
                             <option value="testing">{% trans "Testing" %}</option>
                             <option value="finalizada">{% trans "Finalizada" %}</option>
                         </select>
-                        <p id="detalleEstadoTexto" class="modal-card__text" style="display: none;"></p>
+                        <p id="detalleEstadoTexto" class="modal-card__text modal-card__text--hidden"></p>
                     </div>
-                    <div class="modal-card__field" id="grupoObservacion" style="display: none;">
+                    <div class="modal-card__field modal-card__field--hidden" id="grupoObservacion">
                         <label for="detalleObservacion" class="modal-card__label">{% trans "Observación:" %}</label>
                         <textarea id="detalleObservacion" name="observacion" class="modal-card__input modal-card__textarea" rows="3"></textarea>
                     </div>
@@ -336,7 +348,7 @@
                     </div>
                 </div>
                 <div class="modal-card__footer">
-                    <button type="submit" class="modal-card__btn modal-card__btn--save" id="btnGuardarDetalle" style="display:none;">
+                    <button type="submit" class="modal-card__btn modal-card__btn--save modal-card__btn--hidden" id="btnGuardarDetalle">
                         <i class="bi bi-check-lg"></i> {% trans "Guardar cambios" %}
                     </button>
                 </div>
@@ -377,14 +389,14 @@
                 <h3 class="modal-card__title">{% trans "Confirmar eliminación" %}</h3>
                 <button type="button" class="modal-card__close" id="btnCerrarBorrar"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="modal-card__body" style="text-align: center;">
+            <div class="modal-card__body modal-card__body--centered">
                 <div class="modal-card__icon-warning">
                     <i class="bi bi-exclamation-triangle"></i>
                 </div>
                 <p class="modal-card__warning-text">{% trans "¿Estás seguro de que quieres borrar esta incidencia?" %}</p>
                 <p class="modal-card__warning-sub">{% trans "Esta acción no se puede deshacer." %}</p>
             </div>
-            <div class="modal-card__footer" style="justify-content: center;">
+            <div class="modal-card__footer modal-card__footer--centered">
                 <button type="button" class="modal-card__btn modal-card__btn--danger" id="btnConfirmarBorrar">
                     <i class="bi bi-trash3"></i> {% trans "Eliminar" %}
                 </button>
