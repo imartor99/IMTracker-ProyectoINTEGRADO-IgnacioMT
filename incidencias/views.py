@@ -16,8 +16,8 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model        #interactuar de forma segura con el modelo de usuario sin importar si es predeterminado o personalizado
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.translation import get_language
 
-    
 # Login
 def login_view(request):
     if request.method == 'POST':
@@ -588,16 +588,27 @@ def api_chatbot(request):
         if not mensaje_usuario:
             return JsonResponse({'success': False, 'error': 'El mensaje está vacío'}, status=400)
 
-        # Prompt del sistema para definir la personalidad de la IA
-        prompt_sistema = (
-            "Eres un asistente técnico de soporte IT de primer nivel para una empresa. "
-            "Tu objetivo es ayudar al usuario a solucionar problemas técnicos básicos "
-            "antes de que cree un ticket de soporte. "
-            "Responde de manera amable, directa y MUY BREVE (máximo 2-3 frases). "
-            "Si no sabes la respuesta o es complejo, sugiérele amablemente que cree un ticket."
-        )
-
-        prompt_completo = f"{prompt_sistema}\n\nUsuario: {mensaje_usuario}\nAsistente IT:"
+        # Dependiendo del idioma de la página, le damos el prompt en ese idioma a la IA
+        lang = get_language()
+        if lang == 'en':
+            prompt_sistema = (
+                "You are a first-level IT support assistant for a company. "
+                "Your goal is to help the user solve basic technical problems "
+                "before they create a support ticket. "
+                "Respond in a friendly, direct, and VERY SHORT manner (max 2-3 sentences). "
+                "If you don't know the answer or it's complex, kindly suggest creating a ticket."
+            )
+            prompt_completo = f"{prompt_sistema}\n\nUser: {mensaje_usuario}\nIT Assistant:"
+        else:
+            prompt_sistema = (
+                "Eres un asistente técnico de soporte IT de primer nivel para una empresa. "
+                "Tu objetivo es ayudar al usuario a solucionar problemas técnicos básicos "
+                "antes de que cree un ticket de soporte. "
+                "Responde de manera amable, directa y MUY BREVE (máximo 2-3 frases). "
+                "Si no sabes la respuesta o es complejo, sugiérele amablemente que cree un ticket. "
+                "REGLA CRÍTICA: Debes responder obligatoriamente en el mismo idioma en el que el usuario te escriba su mensaje."
+            )
+            prompt_completo = f"{prompt_sistema}\n\nUsuario: {mensaje_usuario}\nAsistente IT:"
 
         # Conectar con el contenedor de Ollama
         ollama_url = "http://imtracker_ollama:11434/api/generate"
