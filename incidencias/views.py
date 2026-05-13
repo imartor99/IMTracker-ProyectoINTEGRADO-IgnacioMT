@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST      #asegura que una vista solo sea llamada con un método HTTP POST
 from django.http import JsonResponse, HttpResponse
 import csv
+import requests as http_client  # Para consumir APIs externas (Nager.Date)
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from .forms import LoginForm, IncidenciaForm
@@ -516,3 +517,51 @@ def exportar_ticket_pdf(request, incidencia_id):
     HTML(string=html_string).write_pdf(response)
     
     return response
+
+
+# API de Festivos (Consumo de API externa Nager.Date)
+@login_required
+def consultar_festivos(request):
+    """
+    He creado esta vista para consumir la API pública de Nager.Date.
+    Comprueba si hoy es festivo nacional en España y devuelve
+    los próximos 3 festivos para mostrarlos en el dashboard.
+    """
+    hoy = timezone.now().date()
+    anio = hoy.year
+    url_api = f"https://date.nager.at/api/v3/PublicHolidays/{anio}/ES"
+
+    try:
+        respuesta = http_client.get(url_api, timeout=5)
+        respuesta.raise_for_status()
+        festivos = respuesta.json()
+    except http_client.exceptions.RequestException:
+        # Si la API externa falla, devolvemos datos vacíos para no bloquear la app
+        return JsonResponse({
+            'es_festivo': False,
+            'nombre_festivo': None,
+            'proximos_festivos': []
+        })
+
+    # Compruebo si hoy coincide con algún festivo nacional
+    es_festivo = False
+    nombre_festivo = None
+    for f in festivos:
+        if f['date'] == str(hoy):
+            es_festivo = True
+            nombre_festivo = f['localName']
+            break
+
+    # Filtro los próximos 3 festivos que aún no han pasado
+    from datetime import date as date_class
+    proximos = [
+        {'fecha': f['date'], 'nombre': f['localName']}
+        for f in festivos
+        if date_class.fromisoformat(f['date']) > hoy
+    ][:3]
+
+    return JsonResponse({
+        'es_festivo': es_festivo,
+        'nombre_festivo': nombre_festivo,
+        'proximos_festivos': proximos
+    })
