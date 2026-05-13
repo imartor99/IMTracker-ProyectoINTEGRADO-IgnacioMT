@@ -328,6 +328,26 @@
                         <label class="modal-card__label">{% trans "Prioridad:" %}</label>
                         <p id="detallePrioridad" class="modal-card__text"></p>
                     </div>
+                    
+                    <!-- Sección de Inteligencia Artificial (oculta si no hay datos) -->
+                    <div class="modal-card__field modal-card__field--hidden" id="grupoIA">
+                        <label class="modal-card__label modal-card__label--ia">
+                            <i class="bi bi-robot"></i> {% trans "Análisis IA" %}
+                        </label>
+                        <div class="modal-card__ia-section">
+                            <p class="modal-card__text modal-card__text--ia">
+                                <strong class="modal-card__text-strong">{% trans "Resumen:" %}</strong> 
+                                <span id="detalleResumenIA"></span>
+                            </p>
+                            <p class="modal-card__text modal-card__text--ia">
+                                <strong class="modal-card__text-strong">{% trans "Prioridad Sugerida:" %}</strong> 
+                                <span id="detallePrioridadIA"></span>
+                                <span id="avisoDiscrepanciaIA" class="modal-card__warning-inline modal-card__text--hidden">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> {% trans "Discrepancia con usuario" %}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
                     <div class="modal-card__grid">
                         <div class="modal-card__field">
                             <label class="modal-card__label">{% trans "Fecha creación:" %}</label>

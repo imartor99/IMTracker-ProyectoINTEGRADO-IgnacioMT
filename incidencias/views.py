@@ -150,6 +150,8 @@ def detalle_incidencia(request, incidencia_id):
         'puede_editar_descripcion': puede_editar_descripcion,
         'puede_cambiar_estado': puede_cambiar_estado,
         'observacion': ultima_observacion.texto if ultima_observacion else '',
+        'resumen_ia': incidencia.resumen_ia if incidencia.resumen_ia else '',
+        'prioridad_sugerida_ia': incidencia.prioridad_sugerida_ia if incidencia.prioridad_sugerida_ia else '',
     }
 
     return JsonResponse({'success': True, 'data': data})

@@ -1218,3 +1218,42 @@ input[type="file"].modal-card__input::file-selector-button:hover {
 .modal-card__footer--centered {
     justify-content: center;
 }
+
+/* === SECCIÓN INTELIGENCIA ARTIFICIAL (IA) === */
+
+.modal-card__ia-section {
+    background-color: rgba(99, 102, 241, 0.05);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--color-primary);
+    margin-top: 0.5rem;
+}
+
+.modal-card__label--ia {
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-card__text--ia {
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-secondary);
+}
+
+.modal-card__text--ia:last-child {
+    margin-bottom: 0;
+}
+
+.modal-card__text-strong {
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+
+.modal-card__warning-inline {
+    color: var(--color-warning);
+    font-weight: 600;
+    margin-left: 0.5rem;
+    font-size: 0.8125rem;
+}
