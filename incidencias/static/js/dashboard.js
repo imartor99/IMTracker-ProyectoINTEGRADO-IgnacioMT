@@ -595,6 +595,29 @@ function configurarEventos() {
   });
 }
 
+// Consultar API de festivos nacionales (Nager.Date)
+function consultarFestivos() {
+  $.get("/api/festivos/", function (data) {
+    // Si hoy es festivo, muestro el banner de aviso
+    if (data.es_festivo) {
+      const texto = isEnglish
+        ? `Today is a public holiday (${data.nombre_festivo}). Response times may be longer than usual.`
+        : `Hoy es festivo (${data.nombre_festivo}). Los tiempos de respuesta podrían ser más largos de lo habitual.`;
+      $("#bannerFestivo").text(texto).fadeIn();
+    }
+
+    // Muestro los próximos festivos en la sidebar
+    if (data.proximos_festivos && data.proximos_festivos.length > 0) {
+      let html = "";
+      data.proximos_festivos.forEach(function (f) {
+        html += `<li><strong>${f.fecha}</strong> — ${f.nombre}</li>`;
+      });
+      $("#listaFestivos").html(html);
+      $("#seccionFestivos").fadeIn();
+    }
+  });
+}
+
 const main = () => {
   // 1. Configurar seguridad AJAX
   $.ajaxSetup({
@@ -626,6 +649,9 @@ const main = () => {
 
   // 4. Activar los listeners del DOM
   configurarEventos();
+
+  // 5. Consultar festivos nacionales (API externa Nager.Date)
+  consultarFestivos();
 };
 
 document.addEventListener("DOMContentLoaded", main);
