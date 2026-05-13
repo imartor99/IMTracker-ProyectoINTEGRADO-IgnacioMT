@@ -130,6 +130,7 @@ def detalle_incidencia(request, incidencia_id):
     puede_editar_descripcion = (request.user == incidencia.creador)
 
     puede_cambiar_estado = (request.user.departamento in ['it', 'manager'])
+    puede_cambiar_prioridad = (request.user.departamento in ['it', 'manager'])
 
     ultima_observacion = Observacion.objects.filter(incidencia=incidencia).order_by('-fecha').first()
 
@@ -149,6 +150,7 @@ def detalle_incidencia(request, incidencia_id):
         'puede_editar_titulo': puede_editar_titulo,
         'puede_editar_descripcion': puede_editar_descripcion,
         'puede_cambiar_estado': puede_cambiar_estado,
+        'puede_cambiar_prioridad': puede_cambiar_prioridad,
         'observacion': ultima_observacion.texto if ultima_observacion else '',
         'resumen_ia': incidencia.resumen_ia if incidencia.resumen_ia else '',
         'prioridad_sugerida_ia': incidencia.prioridad_sugerida_ia if incidencia.prioridad_sugerida_ia else '',
@@ -167,11 +169,13 @@ def editar_incidencia(request, incidencia_id):
     puede_editar_titulo = (request.user == incidencia.creador) or (departamento_usuario in ['it', 'manager'])
     puede_editar_descripcion = (request.user == incidencia.creador)
     puede_cambiar_estado = request.user.departamento in ['it', 'manager']
+    puede_cambiar_prioridad = request.user.departamento in ['it', 'manager']
 
     if request.method == 'POST':
         titulo = request.POST.get('titulo')
         descripcion = request.POST.get('descripcion')
         estado = request.POST.get('estado')
+        prioridad = request.POST.get('prioridad')
         observacion = request.POST.get('observacion', '').strip()
 
         # Guardamos estado anterior para comparar después
@@ -192,6 +196,10 @@ def editar_incidencia(request, incidencia_id):
         incidencia.titulo = titulo
         incidencia.descripcion = descripcion
         incidencia.estado = estado
+        
+        if puede_cambiar_prioridad and prioridad:
+            incidencia.prioridad = prioridad
+
         # Fecha de resolución según cambio de estado
         if estado_anterior != 'finalizada' and estado == 'finalizada':
             incidencia.fecha_resolucion = timezone.now()

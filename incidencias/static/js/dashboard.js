@@ -204,7 +204,13 @@ function abrirModalDetalle(incidenciaId) {
         $("#detalleEstadoSelect").hide();
       }
 
-      $("#detallePrioridad").text(data.prioridad_display);
+      if (data.puede_cambiar_prioridad) {
+        $("#detallePrioridadSelect").val(data.prioridad).show();
+        $("#detallePrioridadTexto").hide();
+      } else {
+        $("#detallePrioridadTexto").text(data.prioridad_display).show();
+        $("#detallePrioridadSelect").hide();
+      }
 
       // Lógica de Inteligencia Artificial (n8n + Ollama)
       if (data.resumen_ia) {

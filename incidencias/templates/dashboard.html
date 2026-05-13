@@ -325,8 +325,13 @@
                         <textarea id="detalleObservacion" name="observacion" class="modal-card__input modal-card__textarea" rows="3"></textarea>
                     </div>
                     <div class="modal-card__field">
-                        <label class="modal-card__label">{% trans "Prioridad:" %}</label>
-                        <p id="detallePrioridad" class="modal-card__text"></p>
+                        <label for="detallePrioridadSelect" class="modal-card__label">{% trans "Prioridad:" %}</label>
+                        <select id="detallePrioridadSelect" class="modal-card__input modal-card__input--hidden" name="prioridad">
+                            <option value="alta">{% trans "Alta" %}</option>
+                            <option value="media">{% trans "Media" %}</option>
+                            <option value="baja">{% trans "Baja" %}</option>
+                        </select>
+                        <p id="detallePrioridadTexto" class="modal-card__text"></p>
                     </div>
                     
                     <!-- Sección de Inteligencia Artificial (oculta si no hay datos) -->
