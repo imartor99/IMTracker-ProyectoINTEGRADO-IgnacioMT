@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
 
     <!-- Estilos BEM del Dashboard -->
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=3">
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{% static 'img/logoIMTracker.png' %}">
@@ -66,6 +66,10 @@
             <button class="sidebar__link" id="btnAbrirContactoIT">
                 <i class="bi bi-lightbulb-fill"></i>
                 <span>{% trans "Sugerencias" %}</span>
+            </button>
+            <button class="sidebar__link" id="chatbotToggleSidebar">
+                <i class="bi bi-robot"></i>
+                <span>{% trans "Asistente IT" %}</span>
             </button>
             {% endif %}
         </nav>
@@ -472,7 +476,7 @@
     </script>
 
     <!--Archivo JS-->
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/dashboard.js' %}?v=2"></script>
 
     <!-- Cerrar modales -->
     <script>
@@ -575,6 +579,26 @@
         }
     </script>
 
-</body>
+    <!-- CHATBOT FLOTANTE (Solo para usuarios normales) -->
+    {% if request.user.departamento != 'it' and request.user.departamento != 'manager' %}
+    <div class="chatbot-widget" id="chatbotWidget">
+        <div class="chatbot__window chatbot__window--hidden" id="chatbotWindow">
+            <div class="chatbot__header">
+                <span><i class="bi bi-robot"></i> {% trans "Asistente IT" %}</span>
+                <button class="chatbot__close" id="chatbotClose"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="chatbot__messages" id="chatbotMessages">
+                <div class="chatbot__msg chatbot__msg--ai">
+                    {% trans "¡Hola! Soy tu asistente de soporte técnico. ¿En qué te puedo ayudar hoy?" %}
+                </div>
+            </div>
+            <div class="chatbot__input-area">
+                <input type="text" id="chatbotInput" class="chatbot__input" placeholder="{% trans 'Escribe tu problema...' %}" autocomplete="off">
+                <button id="chatbotSend" class="chatbot__send"><i class="bi bi-send-fill"></i></button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
+</body>
 </html>

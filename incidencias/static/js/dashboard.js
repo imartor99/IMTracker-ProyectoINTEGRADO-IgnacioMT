@@ -647,6 +647,100 @@ function consultarFestivos() {
   });
 }
 
+// ==========================================
+// CHATBOT FLOTANTE LOGIC
+// ==========================================
+function initChatbot() {
+  const toggleBtn = document.getElementById("chatbotToggleSidebar");
+  const closeBtn = document.getElementById("chatbotClose");
+  const windowEl = document.getElementById("chatbotWindow");
+  const sendBtn = document.getElementById("chatbotSend");
+  const inputEl = document.getElementById("chatbotInput");
+  const messagesEl = document.getElementById("chatbotMessages");
+
+  if (!toggleBtn) return; // Solo existe si no es IT ni Manager
+
+  toggleBtn.addEventListener("click", () => {
+    windowEl.classList.remove("chatbot__window--hidden");
+    inputEl.focus();
+    // Si en móviles cerramos el menú al abrir el chat:
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && overlay && sidebar.classList.contains('sidebar--mobile-open')) {
+        sidebar.classList.remove('sidebar--mobile-open');
+        overlay.classList.remove('sidebar-overlay--active');
+    }
+  });
+
+  closeBtn.addEventListener("click", () => {
+    windowEl.classList.add("chatbot__window--hidden");
+  });
+
+  function addMessage(text, sender) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("chatbot__msg", `chatbot__msg--${sender}`);
+    msgDiv.textContent = text;
+    messagesEl.appendChild(msgDiv);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function addTypingIndicator() {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("chatbot__msg", "chatbot__msg--ai");
+    msgDiv.id = "chatbotTyping";
+    msgDiv.innerHTML = '<div class="chatbot__typing"><span></span><span></span><span></span></div>';
+    messagesEl.appendChild(msgDiv);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const typingEl = document.getElementById("chatbotTyping");
+    if (typingEl) typingEl.remove();
+  }
+
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    // Añadir mensaje usuario
+    addMessage(text, "user");
+    inputEl.value = "";
+    
+    // Mostrar cargando
+    addTypingIndicator();
+
+    try {
+      const response = await fetch("/api/chatbot/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ mensaje: text })
+      });
+
+      const data = await response.json();
+      removeTypingIndicator();
+
+      if (data.success) {
+        addMessage(data.respuesta, "ai");
+      } else {
+        addMessage("Lo siento, hubo un error de conexión con mi cerebro artificial.", "ai");
+      }
+
+    } catch (error) {
+      removeTypingIndicator();
+      addMessage("Error de red. No puedo conectarme en este momento.", "ai");
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  
+  inputEl.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+}
+
 const main = () => {
   // 1. Configurar seguridad AJAX
   $.ajaxSetup({
@@ -681,6 +775,9 @@ const main = () => {
 
   // 5. Consultar festivos nacionales (API externa Nager.Date)
   consultarFestivos();
+
+  // 6. Inicializar Chatbot
+  initChatbot();
 };
 
 document.addEventListener("DOMContentLoaded", main);
