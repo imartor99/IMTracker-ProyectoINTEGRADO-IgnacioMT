@@ -1,7 +1,7 @@
 # incidencias/urls.py
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-from .views import filtrar_incidencias, login_view, logout_view, dashboard, crear_incidencia_ajax, detalle_incidencia, editar_incidencia, borrar_incidencia, contador_no_finalizadas, obtener_incidencia, obtener_usuarios_filtros, obtener_usuarios_it, asignar_incidencia, contactar_it, exportar_csv, exportar_ticket_pdf
+from .views import filtrar_incidencias, login_view, logout_view, dashboard, crear_incidencia_ajax, detalle_incidencia, editar_incidencia, borrar_incidencia, contador_no_finalizadas, obtener_incidencia, obtener_usuarios_filtros, obtener_usuarios_it, asignar_incidencia, contactar_it, exportar_csv, exportar_ticket_pdf, consultar_festivos
 
 app_name = 'incidencias'
 
@@ -22,5 +22,6 @@ urlpatterns = [
     path('contactar_it/', login_required(contactar_it), name='contactar_it'),
     path('exportar/csv/', exportar_csv, name='exportar_csv'),
     path('incidencia/<int:incidencia_id>/pdf/', exportar_ticket_pdf, name='exportar_ticket_pdf'),
+    path('api/festivos/', consultar_festivos, name='consultar_festivos'),
 ]
 
