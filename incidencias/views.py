@@ -5,7 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST      #asegura que una vista solo sea llamada con un método HTTP POST
 from django.http import JsonResponse, HttpResponse
 import csv
-import requests as http_client  # Para consumir APIs externas (Nager.Date)
+import json
+import requests as http_client  # Para consumir APIs externas (Nager.Date y Ollama)
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from .forms import LoginForm, IncidenciaForm
@@ -152,8 +153,8 @@ def detalle_incidencia(request, incidencia_id):
         'puede_cambiar_estado': puede_cambiar_estado,
         'puede_cambiar_prioridad': puede_cambiar_prioridad,
         'observacion': ultima_observacion.texto if ultima_observacion else '',
-        'resumen_ia': incidencia.resumen_ia if incidencia.resumen_ia else '',
-        'prioridad_sugerida_ia': incidencia.prioridad_sugerida_ia if incidencia.prioridad_sugerida_ia else '',
+        'resumen_ia': incidencia.resumen_ia if (incidencia.resumen_ia and request.user.departamento in ['it', 'manager']) else '',
+        'prioridad_sugerida_ia': incidencia.prioridad_sugerida_ia if (incidencia.prioridad_sugerida_ia and request.user.departamento in ['it', 'manager']) else '',
     }
 
     return JsonResponse({'success': True, 'data': data})
@@ -575,3 +576,49 @@ def consultar_festivos(request):
         'nombre_festivo': nombre_festivo,
         'proximos_festivos': proximos
     })
+
+# --- API CHATBOT (OLLAMA) ---
+@require_POST
+@login_required
+def api_chatbot(request):
+    try:
+        data = json.loads(request.body)
+        mensaje_usuario = data.get('mensaje', '').strip()
+
+        if not mensaje_usuario:
+            return JsonResponse({'success': False, 'error': 'El mensaje está vacío'}, status=400)
+
+        # Prompt del sistema para definir la personalidad de la IA
+        prompt_sistema = (
+            "Eres un asistente técnico de soporte IT de primer nivel para una empresa. "
+            "Tu objetivo es ayudar al usuario a solucionar problemas técnicos básicos "
+            "antes de que cree un ticket de soporte. "
+            "Responde de manera amable, directa y MUY BREVE (máximo 2-3 frases). "
+            "Si no sabes la respuesta o es complejo, sugiérele amablemente que cree un ticket."
+        )
+
+        prompt_completo = f"{prompt_sistema}\n\nUsuario: {mensaje_usuario}\nAsistente IT:"
+
+        # Conectar con el contenedor de Ollama
+        ollama_url = "http://imtracker_ollama:11434/api/generate"
+        payload = {
+            "model": "llama3.1:8b",
+            "prompt": prompt_completo,
+            "stream": False
+        }
+
+        # Petición HTTP a Ollama con timeout de 30 segundos
+        response = http_client.post(ollama_url, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            ollama_data = response.json()
+            respuesta_ia = ollama_data.get('response', 'Lo siento, no pude generar una respuesta.')
+            return JsonResponse({'success': True, 'respuesta': respuesta_ia})
+        else:
+            return JsonResponse({'success': False, 'error': 'Error en el servicio de IA local'}, status=500)
+
+    except http_client.exceptions.Timeout:
+        return JsonResponse({'success': False, 'error': 'La IA está tardando demasiado en responder.'}, status=504)
+    except Exception as e:
+        print(f"Error en api_chatbot: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
