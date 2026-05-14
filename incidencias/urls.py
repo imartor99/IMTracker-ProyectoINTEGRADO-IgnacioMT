@@ -1,6 +1,7 @@
 # incidencias/urls.py
 from django.urls import path
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import views as auth_views
 from .views import filtrar_incidencias, login_view, logout_view, dashboard, crear_incidencia_ajax, detalle_incidencia, editar_incidencia, borrar_incidencia, contador_no_finalizadas, obtener_incidencia, obtener_usuarios_filtros, obtener_usuarios_it, asignar_incidencia, contactar_it, exportar_csv, exportar_ticket_pdf, consultar_festivos, api_chatbot, importar_usuarios_csv
 
 app_name = 'incidencias'
@@ -8,6 +9,11 @@ app_name = 'incidencias'
 urlpatterns = [
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
+    
+    # Rutas para el cambio de contraseña
+    path('password_change/', auth_views.PasswordChangeView.as_view(template_name='registration/password_change_form.html'), name='password_change'),
+    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), name='password_change_done'),
+
     path('', login_required(dashboard), name='dashboard'),
     path('crear_incidencia_ajax/', login_required(crear_incidencia_ajax), name='crear_incidencia_ajax'),
     path('incidencia/<int:incidencia_id>/detalle/', detalle_incidencia, name='detalle_incidencia_ajax'),
