@@ -648,6 +648,71 @@ function consultarFestivos() {
 }
 
 // ==========================================
+// IMPORTAR USUARIOS LOGIC
+// ==========================================
+function initImportarUsuarios() {
+  const btnAbrir = document.getElementById('btnAbrirImportarUsuarios');
+  const btnCerrar = document.getElementById('btnCerrarImportar');
+  const btnCancelar = document.getElementById('btnCancelarImportar');
+  const modal = document.getElementById('modalImportarUsuarios');
+  const form = document.getElementById('formImportarUsuarios');
+  const divErrores = document.getElementById('erroresImportar');
+
+  if (!btnAbrir) return;
+
+  btnAbrir.addEventListener('click', () => {
+    $(modal).fadeIn();
+  });
+
+  const cerrarModal = () => {
+    $(modal).fadeOut();
+    if(form) form.reset();
+    if(divErrores) divErrores.innerHTML = '';
+  };
+
+  btnCerrar.addEventListener('click', cerrarModal);
+  btnCancelar.addEventListener('click', cerrarModal);
+
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const btnSubmit = document.getElementById('btnEnviarImportacion');
+      const originalText = btnSubmit.innerHTML;
+      
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+      divErrores.innerHTML = '';
+
+      fetch('/importar/usuarios/csv/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie("csrftoken")
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = originalText;
+        if (data.success) {
+          alert(data.mensaje);
+          cerrarModal();
+        } else {
+          divErrores.innerHTML = data.error;
+        }
+      })
+      .catch(error => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = originalText;
+        divErrores.innerHTML = 'Error de conexión. Inténtalo de nuevo.';
+      });
+    });
+  }
+}
+
+// ==========================================
 // CHATBOT FLOTANTE LOGIC
 // ==========================================
 function initChatbot() {
@@ -778,6 +843,9 @@ const main = () => {
 
   // 6. Inicializar Chatbot
   initChatbot();
+
+  // 7. Inicializar Importar Usuarios
+  initImportarUsuarios();
 };
 
 document.addEventListener("DOMContentLoaded", main);
