@@ -11,35 +11,39 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 * **Sistema de Roles y Asignaciones:** Posibilidad de asignar incidencias a usuarios específicos del departamento de IT.
 * **Filtros Avanzados:** Filtrado de tickets en tiempo real por estado (Pendiente, En curso, Resuelta) y por usuario asignado.
 * **Soporte Bilingüe (i18n):** Interfaz totalmente traducida al Español y al Inglés, incluyendo un selector de idioma en la pantalla de Login y traducciones dinámicas en JavaScript.
-* **Generación de PDF:** Exportación directa de los detalles de cualquier incidencia a un documento PDF descargable.
-* **Arquitectura de Código Limpio:** Estructura modular tanto en la parte de estilos (CSS) como en el comportamiento del cliente (Vanilla JavaScript y encapsulación de eventos).
+* **Importación Masiva de Usuarios (CSV):** Herramienta administrativa para poblar la base de datos de usuarios de forma masiva mediante archivos CSV, asignando automáticamente departamentos y contraseñas de seguridad.
+* **Sistema de Seguridad de Contraseñas:** Interfaz personalizada y robusta para que los nuevos usuarios puedan cambiar su contraseña predeterminada por una privada, utilizando el motor de encriptación nativo de Django.
+* **Integración con IA (Chatbot IT):** Sistema de asistencia inteligente basado en **Ollama** que analiza el historial de incidencias para sugerir soluciones técnicas y responder dudas sobre el sistema en tiempo real.
+* **Monitorización y Auditoría (Logs):** Sistema de trazabilidad completo que registra cada evento crítico del servidor en ficheros físicos para auditorías de seguridad.
 
 ## Stack Tecnológico
 
 * **Backend:** Python, Django (Manejo de vistas, modelos, y autenticación).
 * **Frontend:** HTML5, CSS3, **Tailwind CSS** (generación de utilidades mediante CLI), **Vanilla JavaScript** (arquitectura estructurada y modular).
-* **Librerías Extra:** jQuery (estrictamente como apoyo para peticiones AJAX, inicialización de DataTables y animaciones de modales), DataTables, Bootstrap Icons.
+* **IA:** Ollama (Modelos de lenguaje locales para el Chatbot).
+* **Librerías Extra:** jQuery (soporte para DataTables y AJAX), WeasyPrint (Generación de PDFs), DataTables, Bootstrap Icons.
 
-## Estructura del Proyecto
+## Sistema de Logs y Auditoría
 
-El proyecto sigue la estructura estándar de una aplicación de Django, destacando:
-* `incidencias/views.py`: Lógica principal del servidor y endpoints AJAX.
-* `incidencias/static/js/dashboard.js`: Controlador principal del frontend con **arquitectura híbrida**: estructurado bajo estándares de Vanilla JavaScript (Responsabilidad Única, DOMContentLoaded) pero utilizando jQuery como motor de apoyo para DataTables y AJAX.
-* `incidencias/static/css/`: Hojas de estilo que combinan CSS modular clásico (`dashboard.css`, `login.css`) con el framework **Tailwind CSS** (`output.css`) para agilizar el maquetado y diseño responsivo.
+Para cumplir con los estándares de seguridad y administración, la aplicación implementa un sistema de logging estructurado en tres niveles:
+
+1.  **`django_security.log`**: Registra auditorías de acceso (Login exitoso, Login fallido con IP, Logout, Importación de usuarios). Utiliza *Django Signals* para garantizar que se capturen eventos incluso si ocurren fuera de las vistas personalizadas.
+2.  **`django_general.log`**: Captura errores de ejecución, excepciones en la comunicación con la IA (Ollama) o fallos en APIs externas.
+3.  **`django_requests.log`**: Monitoriza la salud de la red registrando errores HTTP (404, 500) y peticiones mal formadas.
 
 ## Seguridad y Buenas Prácticas
 
 La aplicación incorpora medidas de seguridad sólidas heredadas de Django y aplicadas de forma activa en el frontend:
 * **Protección contra Inyección SQL y XSS:** Garantizada por el uso del ORM de Django y el escapado automático de las plantillas HTML.
 * **Control de Acceso Basado en Roles (RBAC):** Verificación de permisos desde el backend, enviando banderas de autorización (`puede_editar`, `puede_borrar`) para renderizar de forma segura las acciones del panel.
-* **Protección CSRF (Cross-Site Request Forgery):** Prevención contra ataques de falsificación de peticiones. Las operaciones asíncronas con AJAX interceptan la cookie `csrftoken` del usuario y la inyectan en las cabeceras de seguridad, asegurando que ninguna web de terceros pueda ejecutar acciones críticas (como borrar o asignar tickets) en nombre del usuario.
+* **Protección CSRF (Cross-Site Request Forgery):** Las operaciones asíncronas con AJAX interceptan la cookie `csrftoken` y la inyectan en las cabeceras de seguridad.
 
-## Próximos Pasos (Fase 4)
+## Próximos Pasos (Fase 5)
 
-El proyecto sigue en desarrollo. Las futuras implementaciones incluirán:
-* **Integración con IA (n8n):** Automatización para leer el cuerpo de las incidencias, generar resúmenes automáticos y sugerir prioridades usando un modelo de lenguaje (LLM).
-* **Refinamiento de UI/UX.**
-* **Despliegue final.**
+El proyecto está alcanzando su fase final. Las futuras implementaciones incluirán:
+* **Validación de cuentas por correo electrónico.**
+* **Configuración de CI/CD (GitHub Actions).**
+* **Despliegue final en AWS EC2 con Nginx y SSL.**
 
 ---
 *Nota: Este README es un documento vivo y se ampliará con instrucciones de instalación y detalles técnicos exhaustivos cuando el proyecto alcance su fase final.*
