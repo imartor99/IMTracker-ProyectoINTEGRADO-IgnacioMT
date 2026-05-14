@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST      #asegura que una vista solo sea llamada con un método HTTP POST
 from django.http import JsonResponse, HttpResponse
 import csv
+import io
 import json
 import requests as http_client  # Para consumir APIs externas (Nager.Date y Ollama)
 from django.template.loader import render_to_string
@@ -17,6 +18,15 @@ from django.contrib.auth import get_user_model        #interactuar de forma segu
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.translation import get_language
+import logging
+
+# Instancia del logger personalizado 'incidencias' (configurado en settings.py)
+logger = logging.getLogger('incidencias')
+# Instancia específica para seguridad (va al fichero django_security.log)
+logger_security = logging.getLogger('django.security')
+
+from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.dispatch import receiver
 
 # Login
 def login_view(request):
@@ -25,16 +35,29 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('dashboard')
+            return redirect('incidencias:dashboard')
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
-
 
 # Logout
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+# === SEÑALES DE AUTENTICACIÓN PARA LOGS ===
+@receiver(user_logged_in)
+def log_user_login(sender, request, user, **kwargs):
+    logger_security.info(f'LOGIN exitoso: usuario={user.username}, departamento={getattr(user, "departamento", "N/A")}')
+
+@receiver(user_logged_out)
+def log_user_logout(sender, request, user, **kwargs):
+    if user:
+        logger_security.info(f'LOGOUT: usuario={user.username}')
+
+@receiver(user_login_failed)
+def log_user_login_failed(sender, credentials, request, **kwargs):
+    logger_security.warning(f'LOGIN fallido: usuario_intentado={credentials.get("username")}, IP={request.META.get("REMOTE_ADDR")}')
 
 
 # Vista principal DASHBOARD #
@@ -503,6 +526,7 @@ def exportar_csv(request):
             inc.fecha_resolucion.strftime("%Y-%m-%d %H:%M:%S") if inc.fecha_resolucion else 'No resuelta'
         ])
 
+    logger.info(f'EXPORTAR CSV: usuario={request.user.username}, total_incidencias={incidencias.count()}')
     return response
 
 @login_required
@@ -527,6 +551,7 @@ def exportar_ticket_pdf(request, incidencia_id):
     # Usamos WeasyPrint para convertir el HTML en un PDF
     HTML(string=html_string).write_pdf(response)
     
+    logger.info(f'EXPORTAR PDF: usuario={request.user.username}, incidencia_id={incidencia.id}')
     return response
 
 
@@ -632,4 +657,74 @@ def api_chatbot(request):
         return JsonResponse({'success': False, 'error': 'La IA está tardando demasiado en responder.'}, status=504)
     except Exception as e:
         print(f"Error en api_chatbot: {e}")
+        logger.error(f'Error en api_chatbot: {e}')
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# --- IMPORTACIÓN MASIVA DE USUARIOS (CSV) ---
+@login_required
+@require_POST
+def importar_usuarios_csv(request):
+    if request.user.departamento not in ['it', 'manager']:
+        return JsonResponse({'success': False, 'error': 'No tienes permisos para importar usuarios.'}, status=403)
+        
+    if 'archivo_csv' not in request.FILES:
+        return JsonResponse({'success': False, 'error': 'No se ha proporcionado ningún archivo.'}, status=400)
+        
+    archivo = request.FILES['archivo_csv']
+    if not archivo.name.endswith('.csv'):
+        return JsonResponse({'success': False, 'error': 'El archivo debe tener formato .csv'}, status=400)
+        
+    try:
+        # Decodificar el archivo subido
+        dataset = archivo.read().decode('utf-8')
+        io_string = io.StringIO(dataset)
+        reader = csv.reader(io_string, delimiter=',')
+        
+        # Saltamos la cabecera (username, first_name, last_name, email, departamento)
+        next(reader, None)
+        
+        User = get_user_model()
+        usuarios_creados = 0
+        errores = 0
+        
+        for fila in reader:
+            if len(fila) < 5:
+                errores += 1
+                continue
+                
+            username = fila[0].strip()
+            first_name = fila[1].strip()
+            last_name = fila[2].strip()
+            email = fila[3].strip()
+            departamento = fila[4].strip().lower()
+            
+            if not username:
+                errores += 1
+                continue
+                
+            # Comprobamos si el usuario ya existe
+            if User.objects.filter(username=username).exists():
+                errores += 1
+                continue
+                
+            # Creamos el usuario con una contraseña por defecto
+            # create_user se encarga de hashear la contraseña internamente
+            User.objects.create_user(
+                username=username,
+                email=email,
+                password='ImtrackerUser123!',
+                first_name=first_name,
+                last_name=last_name,
+                departamento=departamento if departamento in ['compras', 'ventas', 'it', 'manager'] else None
+            )
+            usuarios_creados += 1
+            
+        logger.info(f'IMPORTAR USUARIOS CSV: usuario={request.user.username}, creados={usuarios_creados}, errores={errores}')
+        return JsonResponse({
+            'success': True,
+            'mensaje': f'Importación finalizada. {usuarios_creados} usuarios creados. {errores} filas con errores u omitidas.'
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Error procesando el archivo CSV: {str(e)}'}, status=500)
+
