@@ -97,11 +97,11 @@
                     <span class="sidebar__user-role">{% if request.user.departamento %}{{ request.user.departamento }}{% else %}{% trans "Sin departamento" %}{% endif %}</span>
                 </div>
             </div>
-            <a class="sidebar__logout" href="{% url 'password_change' %}" style="margin-bottom: 0.5rem; color: var(--color-text-secondary);">
+            <a class="sidebar__logout" href="{% url 'incidencias:password_change' %}" style="margin-bottom: 0.5rem; color: var(--color-text-secondary);">
                 <i class="bi bi-key"></i>
                 <span>{% trans "Cambiar contraseña" %}</span>
             </a>
-            <a class="sidebar__logout" href="{% url 'logout' %}">
+            <a class="sidebar__logout" href="{% url 'incidencias:logout' %}">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>{% trans "Cerrar sesión" %}</span>
             </a>
