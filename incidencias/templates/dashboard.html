@@ -62,6 +62,10 @@
                 <i class="bi bi-gear-fill"></i>
                 <span>{% trans "Administración" %}</span>
             </a>
+            <button class="sidebar__link" id="btnAbrirImportarUsuarios">
+                <i class="bi bi-file-earmark-person"></i>
+                <span>{% trans "Importar Usuarios" %}</span>
+            </button>
             {% else %}
             <button class="sidebar__link" id="btnAbrirContactoIT">
                 <i class="bi bi-lightbulb-fill"></i>
@@ -93,6 +97,10 @@
                     <span class="sidebar__user-role">{% if request.user.departamento %}{{ request.user.departamento }}{% else %}{% trans "Sin departamento" %}{% endif %}</span>
                 </div>
             </div>
+            <a class="sidebar__logout" href="{% url 'password_change' %}" style="margin-bottom: 0.5rem; color: var(--color-text-secondary);">
+                <i class="bi bi-key"></i>
+                <span>{% trans "Cambiar contraseña" %}</span>
+            </a>
             <a class="sidebar__logout" href="{% url 'logout' %}">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>{% trans "Cerrar sesión" %}</span>
@@ -463,6 +471,37 @@
                         <i class="bi bi-send"></i> {% trans "Enviar sugerencia" %}
                     </button>
                     <button class="modal-card__btn modal-card__btn--cancel" type="button" id="btnCancelarContacto">{% trans "Cancelar" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MODAL: Importar Usuarios CSV (Solo IT/Manager) -->
+    {% if request.user.departamento == 'it' or request.user.departamento == 'manager' %}
+    <div id="modalImportarUsuarios" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-card__header">
+                <h3 class="modal-card__title"><i class="bi bi-file-earmark-person"></i> {% trans "Importar Usuarios" %}</h3>
+                <button type="button" class="modal-card__close" id="btnCerrarImportar"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <form id="formImportarUsuarios" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-card__body">
+                    <p class="modal-card__label" style="font-size: 0.9em; margin-bottom: 1rem; color: var(--color-text-secondary);">
+                        <i class="bi bi-info-circle"></i> {% trans "El CSV debe tener las siguientes columnas (se ignora la primera fila): username, first_name, last_name, email, departamento." %}
+                    </p>
+                    <div class="modal-card__field">
+                        <label class="modal-card__label" for="archivo_csv">{% trans "Archivo CSV" %}</label>
+                        <input type="file" class="modal-card__input" id="archivo_csv" name="archivo_csv" accept=".csv" required>
+                    </div>
+                    <div id="erroresImportar" class="modal-card__errors"></div>
+                </div>
+                <div class="modal-card__footer">
+                    <button class="modal-card__btn modal-card__btn--save" type="submit" id="btnEnviarImportacion">
+                        <i class="bi bi-upload"></i> {% trans "Importar" %}
+                    </button>
+                    <button class="modal-card__btn modal-card__btn--cancel" type="button" id="btnCancelarImportar">{% trans "Cancelar" %}</button>
                 </div>
             </form>
         </div>
