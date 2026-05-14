@@ -169,4 +169,98 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Email (backend de consola para desarrollo, los emails se imprimen en el terminal)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@imtracker.local'
+DEFAULT_FROM_EMAIL = 'noreply@imtracker.local'
+
+
+# =============================================================================
+# FICHEROS DE LOGS
+# =============================================================================
+# Configuración del sistema de logging de Django.
+# Se generan 3 ficheros de log dentro de la carpeta 'logs/' del proyecto:
+#   - django_general.log  → Errores y warnings de toda la aplicación
+#   - django_security.log → Intentos de login, cambios de contraseña, CSRF, etc.
+#   - django_requests.log → Peticiones HTTP (solo errores 4xx y 5xx)
+
+# Creamos la carpeta 'logs/' automáticamente si no existe
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    # Formateadores: definen cómo se escribe cada línea en el fichero
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] {levelname} {name} {module}.{funcName}:{lineno} → {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '[{asctime}] {levelname} → {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+
+    # Handlers: destinos donde se escriben los logs
+    'handlers': {
+        # Consola (para desarrollo, muestra los mensajes en el terminal de Docker)
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        # Fichero de errores generales de la aplicación
+        'file_general': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_general.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        # Fichero de seguridad (login, logout, CSRF, permisos)
+        'file_security': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_security.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        # Fichero de peticiones HTTP con error (4xx, 5xx)
+        'file_requests': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_requests.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+    },
+
+    # Loggers: categorías que capturan los eventos
+    'loggers': {
+        # Logger principal de Django
+        'django': {
+            'handlers': ['console', 'file_general'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        # Logger de seguridad (intentos de login fallidos, CSRF, etc.)
+        'django.security': {
+            'handlers': ['file_security'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Logger de peticiones HTTP
+        'django.request': {
+            'handlers': ['file_requests'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        # Logger personalizado para nuestra app 'incidencias'
+        'incidencias': {
+            'handlers': ['console', 'file_general'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
