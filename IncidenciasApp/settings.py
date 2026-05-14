@@ -36,13 +36,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'incidencias',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'incidencias',
 ]
 
 AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'  #le indica a Django que, en lugar de usar el modelo de usuario predeterminado, debe utilizar el modelo personalizado de usuario definido en tu aplicación incidencias (en este caso, UsuarioPersonalizado)
