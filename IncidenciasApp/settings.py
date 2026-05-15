@@ -149,9 +149,20 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'incidencias/static'),
 ]
 
-LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = reverse_lazy('incidencias:dashboard')
-LOGOUT_REDIRECT_URL = reverse_lazy('incidencias:login')
+# Configuración de Correo Electrónico
+# Usamos Gmail SMTP para enviar correos reales
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'soporte.imtracker@gmail.com'
+EMAIL_HOST_PASSWORD = 'lrwj xqzc lete rxbe'
+DEFAULT_FROM_EMAIL = 'IMTracker Soporte <soporte.imtracker@gmail.com>'
+
+# Configuración de URLs de autenticación
+LOGIN_URL = 'incidencias:login'
+LOGIN_REDIRECT_URL = 'incidencias:dashboard'
+LOGOUT_REDIRECT_URL = 'incidencias:login'
 
 
 
@@ -165,11 +176,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# La configuración SMTP ha sido eliminada por seguridad.
-
-# Email (backend de consola para desarrollo, los emails se imprimen en el terminal)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@imtracker.local'
+# La configuración SMTP ya está definida arriba.
 
 
 # =============================================================================
