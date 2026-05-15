@@ -400,9 +400,9 @@ def filtrar_incidencias(request):
     if usuarios_ids:
         incidencias = incidencias.filter(asignado_a__id__in=usuarios_ids)
 
-    # Si no es de IT ni manager, mostrar solo sus propias incidencias
-    if not request.user.departamento in ['it', 'manager']:
-        incidencias = incidencias.filter(creador=usuario)
+    # Si no es de IT ni manager, mostrar solo las incidencias de su departamento (igual que en la carga inicial)
+    if request.user.departamento not in ['it', 'manager']:
+        incidencias = incidencias.filter(creador__departamento=request.user.departamento)
 
     data = []
     for inc in incidencias:
