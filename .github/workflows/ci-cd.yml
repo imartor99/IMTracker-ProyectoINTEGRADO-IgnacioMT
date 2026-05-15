@@ -54,13 +54,16 @@ jobs:
         pip install -r requirements.txt
         npm install
     - name: Generar Documentación (Python & JS)
+      env:
+        DJANGO_SETTINGS_MODULE: "IncidenciasApp.settings"
       run: |
         mkdir -p documentation/python
         mkdir -p documentation/javascript
         python -m pydoc -w incidencias.views incidencias.models incidencias.urls
         mv *.html documentation/python/
-        npm run docs
-        mv js-docs/* documentation/javascript/
+        npm run docs --if-present
+        if [ -d "js-docs" ]; then mv js-docs/* documentation/javascript/; fi
+
     - name: Guardar Artefactos
       uses: actions/upload-artifact@v4
       with:
