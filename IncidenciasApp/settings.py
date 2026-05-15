@@ -13,9 +13,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-# He importado gettext_lazy para poder marcar los nombres de los idiomas (Español/English) para su traducción
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-a+)4#pwx)z8l1bmn2@xa1n=!l@_xl)m@zi@bp0j60g97k^apu-'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -90,7 +93,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get('DB_NAME', 'imtracker'),
         'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'imtracker_super_secreta_2026'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': '5432',
     }
@@ -150,14 +153,14 @@ STATICFILES_DIRS = [
 ]
 
 # Configuración de Correo Electrónico
-# Usamos Gmail SMTP para enviar correos reales
+# Usamos Gmail SMTP para enviar correos reales (Credenciales cargadas desde .env)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'soporte.imtracker@gmail.com'
-EMAIL_HOST_PASSWORD = 'lrwj xqzc lete rxbe'
-DEFAULT_FROM_EMAIL = 'IMTracker Soporte <soporte.imtracker@gmail.com>'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = f'IMTracker Soporte <{EMAIL_HOST_USER}>'
 
 # Configuración de URLs de autenticación
 LOGIN_URL = 'incidencias:login'
