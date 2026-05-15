@@ -1,3 +1,7 @@
+"""
+Vistas principales de la aplicación de Incidencias.
+Maneja la lógica de negocio para el dashboard, gestión de tickets y consumo de APIs externas.
+"""
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
@@ -17,7 +21,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model        #interactuar de forma segura con el modelo de usuario sin importar si es predeterminado o personalizado
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.translation import get_language
+from django.utils.translation import get_language, gettext as _
 import logging
 
 # Instancia del logger personalizado 'incidencias' (configurado en settings.py)
@@ -30,6 +34,10 @@ from django.dispatch import receiver
 
 # Login
 def login_view(request):
+    """
+    Maneja la autenticación de usuarios mediante un formulario de login.
+    Si el método es POST, valida las credenciales y redirige al dashboard.
+    """
     if request.method == 'POST':
         form = LoginForm(data=request.POST)
         if form.is_valid():
@@ -42,12 +50,18 @@ def login_view(request):
 
 # Logout
 def logout_view(request):
+    """
+    Cierra la sesión del usuario actual y redirige a la página de login.
+    """
     logout(request)
     return redirect('incidencias:login')
 
 # === SEÑALES DE AUTENTICACIÓN PARA LOGS ===
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
+    """
+    Señal que se dispara al iniciar sesión exitosamente para registrarlo en los logs de seguridad.
+    """
     logger_security.info(f'LOGIN exitoso: usuario={user.username}, departamento={getattr(user, "departamento", "N/A")}')
 
 @receiver(user_logged_out)
@@ -57,16 +71,21 @@ def log_user_logout(sender, request, user, **kwargs):
 
 @receiver(user_login_failed)
 def log_user_login_failed(sender, credentials, request, **kwargs):
-    logger_security.warning(f'LOGIN fallido: usuario_intentado={credentials.get("username")}, IP={request.META.get("REMOTE_ADDR")}')
+    ip = request.META.get('REMOTE_ADDR') if request else 'Desconocida'
+    logger_security.warning(f'LOGIN fallido: usuario_intentado={credentials.get("username")}, IP={ip}')
 
 
 # Vista principal DASHBOARD #
 @login_required
 def dashboard(request):
+    """
+    Vista principal del sistema. Filtra las incidencias visibles según el departamento del usuario
+    y calcula el contador de incidencias pendientes para perfiles IT/Manager.
+    """
     user = request.user
 
     if not user.departamento:
-        messages.warning(request, "No tienes un departamento asignado. Contacta con el administrador.")  #aviso si el user no tiene departamento asignado
+        messages.warning(request, _("No tienes un departamento asignado. Contacta con el administrador."))
         incidencias = Incidencia.objects.none()
     elif user.departamento == "manager":
         incidencias = Incidencia.objects.filter(oculta=False)
@@ -77,7 +96,7 @@ def dashboard(request):
     elif user.departamento == 'it':
         incidencias = Incidencia.objects.filter(oculta=False)
     else:
-        messages.warning(request, "Tu departamento no tiene permisos para ver incidencias.")
+        messages.warning(request, _("Tu departamento no tiene permisos para ver incidencias."))
         incidencias = Incidencia.objects.none()
 
     # Contador solo si el usuario pertenece al departamento IT o es manager de IT
@@ -93,13 +112,17 @@ def dashboard(request):
 # Contador Incidencias no finalizadas
 @login_required
 def contador_no_finalizadas(request):
+    """
+    Calcula y retorna el número de incidencias que no han sido finalizadas.
+    Soporta peticiones AJAX para actualizaciones dinámicas en la interfaz.
+    """
     contador = Incidencia.objects.filter(oculta=False).exclude(estado='finalizada').count()
     
     # Si la petición es AJAX, devolvemos JSON con el contador
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':      
         return JsonResponse({'contador': contador})
     
-    return JsonResponse({'error': 'Esta vista solo admite peticiones AJAX'}, status=400)
+    return JsonResponse({'error': _('Esta vista solo admite peticiones AJAX')}, status=400)
     
     # Si la quieres usar para renderizar plantilla, para pruebas, por ejemplo:
     # return render(request, 'contador.html', {'contador': contador})            #esto lo he usado para depuracion
@@ -109,6 +132,10 @@ def contador_no_finalizadas(request):
 @require_POST
 @login_required
 def crear_incidencia_ajax(request):
+    """
+    Crea una nueva incidencia a partir de los datos recibidos por POST (AJAX).
+    Retorna la información de la incidencia creada en formato JSON para actualizar el DataTable.
+    """
     if request.method == 'POST':
         form = IncidenciaForm(request.POST, request.FILES)
         if form.is_valid():
@@ -145,6 +172,10 @@ def crear_incidencia_ajax(request):
 # Visualizacion de incidencia
 @login_required
 def detalle_incidencia(request, incidencia_id):
+    """
+    Obtiene los detalles completos de una incidencia específica.
+    Calcula permisos de edición y devuelve la información junto con observaciones y análisis de IA.
+    """
     incidencia = get_object_or_404(Incidencia, id=incidencia_id)
 
     puede_editar_titulo = (
@@ -186,6 +217,10 @@ def detalle_incidencia(request, incidencia_id):
 @require_POST
 @login_required
 def editar_incidencia(request, incidencia_id):
+    """
+    Procesa la edición de una incidencia existente.
+    Verifica permisos específicos para título, descripción, estado y prioridad antes de guardar.
+    """
     incidencia = get_object_or_404(Incidencia, id=incidencia_id)
 
     departamento_usuario = getattr(request.user, 'departamento', '').lower()
@@ -206,16 +241,16 @@ def editar_incidencia(request, incidencia_id):
         estado_anterior = incidencia.estado
         
         if not puede_editar_titulo and (titulo != incidencia.titulo):
-            return JsonResponse({'success': False, 'error': 'No tienes permiso para editar el título'})
+            return JsonResponse({'success': False, 'error': _('No tienes permiso para editar el título')})
         
         if not puede_editar_descripcion and (descripcion != incidencia.descripcion):
-            return JsonResponse({'success': False, 'error': 'No tienes permiso para editar la descripción'})
+            return JsonResponse({'success': False, 'error': _('No tienes permiso para editar la descripción')})
         
         if not puede_cambiar_estado and (estado != incidencia.estado):
-            return JsonResponse({'success': False, 'error': 'No tienes permiso para cambiar el estado'})
+            return JsonResponse({'success': False, 'error': _('No tienes permiso para cambiar el estado')})
         
         if estado in ['faltan_datos', 'finalizada'] and not observacion:
-            return JsonResponse({'success': False, 'error': 'Debes proporcionar una observación para este estado'})
+            return JsonResponse({'success': False, 'error': _('Debes proporcionar una observación para este estado')})
 
         incidencia.titulo = titulo
         incidencia.descripcion = descripcion
@@ -273,20 +308,24 @@ def editar_incidencia(request, incidencia_id):
             'actualizar_contador': actualizar_contador,  # NUEVO campo
         })
     
-    return JsonResponse({'success': False, 'error': 'Método no permitido'}) 
+    return JsonResponse({'success': False, 'error': _('Método no permitido')}) 
 
 # BORRAR incidencia DASHBOARD #
 
 @require_POST
 @login_required
 def borrar_incidencia(request, id):
+    """
+    Marca una incidencia como oculta en lugar de eliminarla físicamente.
+    Solo el creador o personal de IT/Manager pueden realizar esta acción.
+    """
     incidencia = get_object_or_404(Incidencia, id=id)
 
     if request.user == incidencia.creador or request.user.departamento in ['it', 'manager']:
         incidencia.oculta = True
         incidencia.save()
         return JsonResponse({'success': True})
-    return JsonResponse({'error': 'No autorizado'}, status=403)
+    return JsonResponse({'error': _('No autorizado')}, status=403)
 
 
 # ASIGNAR Incidencias #
@@ -297,6 +336,10 @@ User = get_user_model()
 
 @login_required
 def obtener_usuarios_it(request):
+    """
+    Retorna una lista de usuarios del departamento IT disponibles para asignación.
+    Los permisos varían si el solicitante es Manager (ve a todos) o Técnico (solo a sí mismo).
+    """
     user = request.user
     departamento = user.departamento.lower() if user.departamento else ''
 
@@ -316,6 +359,9 @@ def obtener_usuarios_it(request):
 # Obtener asignado_a de incidencias
 @login_required
 def obtener_incidencia(request, incidencia_id):
+    """
+    Obtiene el nombre del usuario asignado actualmente a una incidencia.
+    """
     incidencia = get_object_or_404(Incidencia, id=incidencia_id)
     asignado = incidencia.asignado_a
 
@@ -332,6 +378,10 @@ def obtener_incidencia(request, incidencia_id):
 @login_required
 @require_POST
 def asignar_incidencia(request):
+    """
+    Asigna una incidencia a un técnico de IT. 
+    Cambia automáticamente el estado de la incidencia a 'En curso'.
+    """
     incidencia_id = request.POST.get('incidencia_id')
     usuario_id = request.POST.get('usuario_id')
 
@@ -341,23 +391,23 @@ def asignar_incidencia(request):
     try:
         usuario_asignado = User.objects.get(id=usuario_id)
     except User.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'})
+        return JsonResponse({'success': False, 'error': _('Usuario no encontrado.')})
 
     # Verificar permisos
     if user.departamento == 'manager':
         if usuario_asignado.departamento in ['it', 'manager']:
             incidencia.asignado_a = usuario_asignado
         else:
-            return JsonResponse({'success': False, 'error': 'Solo puedes asignar a personal de IT.'})
+            return JsonResponse({'success': False, 'error': _('Solo puedes asignar a personal de IT.')})
 
     elif user.departamento == 'it':
         if user.id == usuario_asignado.id:
             incidencia.asignado_a = usuario_asignado
         else:
-            return JsonResponse({'success': False, 'error': 'Solo puedes asignarte a ti mismo.'})
+            return JsonResponse({'success': False, 'error': _('Solo puedes asignarte a ti mismo.')})
             
     else:
-        return JsonResponse({'success': False, 'error': 'No tienes permisos para asignar incidencias.'})
+        return JsonResponse({'success': False, 'error': _('No tienes permisos para asignar incidencias.')})
 
     incidencia.fecha_asignacion = timezone.now()
 
@@ -387,6 +437,10 @@ def asignar_incidencia(request):
 # FILTROS Incidencias
 @login_required
 def filtrar_incidencias(request):
+    """
+    Filtra las incidencias en base a estado, técnicos asignados y permisos de departamento.
+    Retorna los resultados en formato JSON para el DataTable del dashboard.
+    """
     estado = request.GET.get('estado')
     usuarios_ids = request.GET.getlist('usuarios')
     usuario = request.user
@@ -433,6 +487,9 @@ def filtrar_incidencias(request):
 # Vista para obtener usuarios IT pero para FILTROS que tiene otras condiciones
 @login_required
 def obtener_usuarios_filtros(request):
+    """
+    Retorna los técnicos de IT disponibles para ser seleccionados en los filtros del dashboard.
+    """
     user = request.user
     departamento = user.departamento.lower() if user.departamento else ''
 
@@ -450,12 +507,15 @@ def obtener_usuarios_filtros(request):
 @login_required
 @require_POST
 def contactar_it(request):
-    """Vista para que usuarios de otros departamentos envíen solicitudes al equipo IT por correo electrónico."""
+    """
+    Gestiona el envío de correos electrónicos desde usuarios no-IT hacia el equipo de soporte.
+    Utiliza el sistema de mensajería de Django para notificar sugerencias o incidencias críticas.
+    """
     asunto = request.POST.get('asunto', '').strip()
     mensaje = request.POST.get('mensaje', '').strip()
 
     if not asunto or not mensaje:
-        return JsonResponse({'success': False, 'error': 'Asunto y mensaje son obligatorios.'})
+        return JsonResponse({'success': False, 'error': _('Asunto y mensaje son obligatorios.')})
 
     # Obtener emails de usuarios IT y Manager
     usuarios_it = UsuarioPersonalizado.objects.filter(
@@ -465,7 +525,7 @@ def contactar_it(request):
     destinatarios = list(usuarios_it)
 
     if not destinatarios:
-        return JsonResponse({'success': False, 'error': 'No hay usuarios IT con email registrado.'})
+        return JsonResponse({'success': False, 'error': _('No hay usuarios IT con email registrado.')})
 
     # Componer email
     remitente_nombre = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
@@ -495,6 +555,10 @@ def contactar_it(request):
 
 @login_required
 def exportar_csv(request):
+    """
+    Genera un archivo CSV con todas las incidencias registradas en el sistema.
+    Incluye detalles de ID, estado, prioridad y fechas para análisis externo.
+    """
     # Preparamos la respuesta HTTP para que el navegador descargue un archivo CSV
     response = HttpResponse(content_type='text/csv')
     
@@ -531,6 +595,10 @@ def exportar_csv(request):
 
 @login_required
 def exportar_ticket_pdf(request, incidencia_id):
+    """
+    Genera un documento PDF detallado de una incidencia individual.
+    Utiliza WeasyPrint para renderizar una plantilla HTML como archivo PDF descargable.
+    """
     # Obtenemos la incidencia por su ID
     incidencia = get_object_or_404(Incidencia, id=incidencia_id)
     fecha_actual = timezone.now().strftime("%d/%m/%Y %H:%M")
@@ -559,9 +627,8 @@ def exportar_ticket_pdf(request, incidencia_id):
 @login_required
 def consultar_festivos(request):
     """
-    He creado esta vista para consumir la API pública de Nager.Date.
-    Comprueba si hoy es festivo nacional en España y devuelve
-    los próximos 3 festivos para mostrarlos en el dashboard.
+    Consume la API pública Nager.Date para identificar festivos nacionales en España.
+    Actualiza el dashboard con información sobre el estado festivo actual y próximos eventos.
     """
     hoy = timezone.now().date()
     anio = hoy.year
@@ -606,12 +673,16 @@ def consultar_festivos(request):
 @require_POST
 @login_required
 def api_chatbot(request):
+    """
+    Interactúa con el modelo de lenguaje Llama 3 (vía Ollama) para ofrecer soporte técnico.
+    Proporciona respuestas breves y directas según el idioma detectado en la sesión.
+    """
     try:
         data = json.loads(request.body)
         mensaje_usuario = data.get('mensaje', '').strip()
 
         if not mensaje_usuario:
-            return JsonResponse({'success': False, 'error': 'El mensaje está vacío'}, status=400)
+            return JsonResponse({'success': False, 'error': _('El mensaje está vacío')}, status=400)
 
         # Dependiendo del idioma de la página, le damos el prompt en ese idioma a la IA
         lang = get_language()
@@ -648,13 +719,13 @@ def api_chatbot(request):
         
         if response.status_code == 200:
             ollama_data = response.json()
-            respuesta_ia = ollama_data.get('response', 'Lo siento, no pude generar una respuesta.')
+            respuesta_ia = ollama_data.get('response', _('Lo siento, no pude generar una respuesta.'))
             return JsonResponse({'success': True, 'respuesta': respuesta_ia})
         else:
-            return JsonResponse({'success': False, 'error': 'Error en el servicio de IA local'}, status=500)
+            return JsonResponse({'success': False, 'error': _('Error en el servicio de IA local')}, status=500)
 
     except http_client.exceptions.Timeout:
-        return JsonResponse({'success': False, 'error': 'La IA está tardando demasiado en responder.'}, status=504)
+        return JsonResponse({'success': False, 'error': _('La IA está tardando demasiado en responder.')}, status=504)
     except Exception as e:
         print(f"Error en api_chatbot: {e}")
         logger.error(f'Error en api_chatbot: {e}')
@@ -665,14 +736,14 @@ def api_chatbot(request):
 @require_POST
 def importar_usuarios_csv(request):
     if request.user.departamento not in ['it', 'manager']:
-        return JsonResponse({'success': False, 'error': 'No tienes permisos para importar usuarios.'}, status=403)
+        return JsonResponse({'success': False, 'error': _('No tienes permisos para importar usuarios.')}, status=403)
         
     if 'archivo_csv' not in request.FILES:
-        return JsonResponse({'success': False, 'error': 'No se ha proporcionado ningún archivo.'}, status=400)
+        return JsonResponse({'success': False, 'error': _('No se ha proporcionado ningún archivo.')}, status=400)
         
     archivo = request.FILES['archivo_csv']
     if not archivo.name.endswith('.csv'):
-        return JsonResponse({'success': False, 'error': 'El archivo debe tener formato .csv'}, status=400)
+        return JsonResponse({'success': False, 'error': _('El archivo debe tener formato .csv')}, status=400)
         
     try:
         # Decodificar el archivo subido
@@ -722,7 +793,7 @@ def importar_usuarios_csv(request):
         logger.info(f'IMPORTAR USUARIOS CSV: usuario={request.user.username}, creados={usuarios_creados}, errores={errores}')
         return JsonResponse({
             'success': True,
-            'mensaje': f'Importación finalizada. {usuarios_creados} usuarios creados. {errores} filas con errores u omitidas.'
+            'mensaje': _('Importación finalizada. {usuarios_creados} usuarios creados. {errores} filas con errores u omitidas.').format(usuarios_creados=usuarios_creados, errores=errores)
         })
         
     except Exception as e:
