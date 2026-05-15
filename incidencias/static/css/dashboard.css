@@ -1505,3 +1505,25 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     from { transform: translateY(-30px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
+
+.btn-modal-exito {
+    background-color: #28a745 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-modal-exito:hover {
+    background-color: #218838 !important;
+    transform: scale(1.02);
+}
+
+.btn-modal-error {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.btn-modal-error:hover {
+    background-color: #c82333 !important;
+    transform: scale(1.02);
+}
