@@ -108,6 +108,9 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
+          # 2.5 Limpieza profunda para liberar RAM y Disco
+          sudo docker system prune -a -f
+          
           # 3. Levantar la aplicación (Usando configuración de PROD sin Ollama)
           sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} docker-compose -f docker-compose.prod.yml down
           sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} docker-compose -f docker-compose.prod.yml up --build -d
