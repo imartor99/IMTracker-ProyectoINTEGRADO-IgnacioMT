@@ -1,3 +1,10 @@
+/**
+ * @file dashboard.js
+ * @description Lógica principal del Dashboard de IMTracker.
+ * Gestiona el DataTable, la creación/edición de incidencias vía AJAX,
+ * los filtros dinámicos, el Chatbot de IA y la integración con APIs externas.
+ */
+
 /* ========================================================
    1. VARIABLES GLOBALES Y ESTADO
    ======================================================== */
@@ -52,6 +59,15 @@ let borrarFila = null;
    ======================================================== */
 
 // Función auxiliar para generar los botones de acción con sus clases CSS BEM y traducciones correctas
+/**
+ * Genera el HTML de los botones de acción para una fila de la tabla de incidencias.
+ * @param {Object} inc - Objeto con los datos de la incidencia.
+ * @param {number} inc.id - ID único de la incidencia.
+ * @param {boolean} inc.puede_actualizar - Permiso para editar.
+ * @param {boolean} inc.puede_asignar - Permiso para asignar técnico.
+ * @param {boolean} inc.puede_borrar - Permiso para ocultar/borrar.
+ * @returns {string} Cadena de texto con el HTML de los botones.
+ */
 function generarBotonesAcciones(inc) {
   let acciones = '<div class="dashboard__actions">';
   const txtActualizar = isEnglish ? "Update" : "Actualizar";
@@ -90,6 +106,10 @@ function generarBotonesAcciones(inc) {
 }
 
 // Mensaje de ÉXITO al crear incidencia
+/**
+ * Muestra un mensaje temporal de éxito en la interfaz.
+ * @param {string} mensaje - El texto a mostrar.
+ */
 function mostrarMensajeFlotante(mensaje) {
   const $mensaje = $("#mensajeExito");
   $mensaje.text(mensaje).fadeIn();
@@ -97,6 +117,9 @@ function mostrarMensajeFlotante(mensaje) {
 }
 
 // Actualizar CONTADOR
+/**
+ * Realiza una petición AJAX para obtener el número de incidencias pendientes y actualiza el contador en el DOM.
+ */
 function actualizarContador() {
   $.ajax({
     url: "/contador/",
@@ -113,6 +136,10 @@ function actualizarContador() {
 }
 
 // Función reutilizable para actualizar una fila del DataTable tras editar una incidencia
+/**
+ * Actualiza una única fila del DataTable con nuevos datos.
+ * @param {Object} data - Objeto con la información actualizada de la incidencia.
+ */
 function actualizarFilaIncidencia(data) {
   // Construimos el ID esperado para la fila (ej. "incidencia-5")
   const filaId = `incidencia-${data.id}`;
@@ -163,6 +190,11 @@ function actualizarFilaIncidencia(data) {
 }
 
 // Modal para VISTA de incidencia y ACTUALIZAR
+/**
+ * Abre el modal de detalle de una incidencia y carga sus datos vía AJAX.
+ * Configura la visibilidad de los campos y el análisis de IA según los permisos del usuario.
+ * @param {number} incidenciaId - ID de la incidencia a mostrar.
+ */
 function abrirModalDetalle(incidenciaId) {
   $.get(`/incidencia/${incidenciaId}/detalle/`, function (response) {
     if (response.success) {
@@ -264,6 +296,9 @@ function abrirModalDetalle(incidenciaId) {
 }
 
 // Obtenemos la lista de usuarios de IT
+/**
+ * Carga la lista de técnicos de IT para rellenar los filtros del dashboard.
+ */
 function cargarUsuariosIT() {
   $.getJSON("/obtener_usuarios_filtros/", function (data) {
     data.usuarios.forEach(function (usuario) {
@@ -275,6 +310,9 @@ function cargarUsuariosIT() {
 }
 
 // Funcion que realiza la llamada ajax en funcion de los filtros activos
+/**
+ * Aplica los filtros seleccionados (estado y técnico) y actualiza el DataTable mediante AJAX.
+ */
 function aplicarFiltros() {
   $.ajax({
     url: "/filtrar_incidencias/",
@@ -314,6 +352,12 @@ function aplicarFiltros() {
 }
 
 // Configurar CSRF desde las cookies (funciona automáticamente para todos los $.ajax())
+/**
+ * Obtiene el valor de una cookie específica por su nombre.
+ * Utilizado principalmente para recuperar el token CSRF de Django.
+ * @param {string} name - Nombre de la cookie.
+ * @returns {string|null} Valor de la cookie o null si no se encuentra.
+ */
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -334,6 +378,10 @@ function getCookie(name) {
    ======================================================== */
 
 // Función que agrupa todos los Listeners del DOM
+/**
+ * Inicializa y configura todos los escuchadores de eventos (event listeners) del dashboard.
+ * Maneja la interacción con modales, formularios AJAX y la tabla de incidencias.
+ */
 function configurarEventos() {
   // Mostrar modal
   $("#btnAbrirModal").click(() => $("#modalIncidencia").fadeIn());
@@ -625,6 +673,9 @@ function configurarEventos() {
 }
 
 // Consultar API de festivos nacionales (Nager.Date)
+/**
+ * Consulta la API de festivos nacionales y actualiza los avisos y la barra lateral del dashboard.
+ */
 function consultarFestivos() {
   $.get("/api/festivos/", function (data) {
     // Si hoy es festivo, muestro el banner de aviso
@@ -650,6 +701,9 @@ function consultarFestivos() {
 // ==========================================
 // IMPORTAR USUARIOS LOGIC
 // ==========================================
+/**
+ * Inicializa la lógica para la importación masiva de usuarios vía archivo CSV.
+ */
 function initImportarUsuarios() {
   const btnAbrir = document.getElementById('btnAbrirImportarUsuarios');
   const btnCerrar = document.getElementById('btnCerrarImportar');
@@ -715,6 +769,10 @@ function initImportarUsuarios() {
 // ==========================================
 // CHATBOT FLOTANTE LOGIC
 // ==========================================
+/**
+ * Inicializa el componente de chatbot flotante para asistencia técnica.
+ * Configura el envío de mensajes a la API de IA (Ollama).
+ */
 function initChatbot() {
   const toggleBtn = document.getElementById("chatbotToggleSidebar");
   const closeBtn = document.getElementById("chatbotClose");
@@ -741,6 +799,11 @@ function initChatbot() {
     windowEl.classList.add("chatbot__window--hidden");
   });
 
+  /**
+   * Añade un mensaje a la ventana de chat.
+   * @param {string} text - Contenido del mensaje.
+   * @param {string} sender - Quién envía el mensaje ('user' o 'ai').
+   */
   function addMessage(text, sender) {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("chatbot__msg", `chatbot__msg--${sender}`);
@@ -749,6 +812,9 @@ function initChatbot() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  /**
+   * Muestra un indicador visual de que la IA está escribiendo.
+   */
   function addTypingIndicator() {
     const msgDiv = document.createElement("div");
     msgDiv.classList.add("chatbot__msg", "chatbot__msg--ai");
@@ -758,11 +824,18 @@ function initChatbot() {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  /**
+   * Elimina el indicador de escritura de la IA.
+   */
   function removeTypingIndicator() {
     const typingEl = document.getElementById("chatbotTyping");
     if (typingEl) typingEl.remove();
   }
 
+  /**
+   * Envía el mensaje del usuario a la API y gestiona la respuesta de la IA.
+   * @async
+   */
   async function sendMessage() {
     const text = inputEl.value.trim();
     if (!text) return;
@@ -806,11 +879,18 @@ function initChatbot() {
   });
 }
 
+/**
+ * Función principal de arranque que coordina la inicialización de DataTables, 
+ * seguridad AJAX y configuración de componentes.
+ */
 const main = () => {
   // 1. Configurar seguridad AJAX
   $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-      const csrfSafeMethod = /^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type); //Solo añade el token si el método no es seguro (POST, PUT, DELETE, etc.).
+      /**
+       * Verifica si el método HTTP requiere protección CSRF (métodos de escritura).
+       */
+      const csrfSafeMethod = /^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type);
       if (!csrfSafeMethod && !this.crossDomain) {
         xhr.setRequestHeader("X-CSRFToken", getCookie("csrftoken"));
       }
@@ -825,8 +905,11 @@ const main = () => {
 
     // Cada vez que redibuje la tabla(paginacion,recarga...)mantiene estilos css definidos por mi
     createdRow: function (row, data, dataIndex) {
-      // data[4] es el estado mostrado en la tabla: 'Pendiente', 'En curso', 'Resuelta'
-      let estado = data[4].toLowerCase().replace(/\s+/g, "-"); // "En curso" -> "en-curso"
+      /**
+       * Aplica clases CSS personalizadas a las filas según el estado de la incidencia.
+       * Esto permite el código de colores dinámico en la tabla.
+       */
+      let estado = data[4].toLowerCase().replace(/\s+/g, "-");
       const id = data[0];
       $(row).addClass(estado).attr("id", `incidencia-${id}`);
     },
