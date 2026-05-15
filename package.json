@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "docs": "jsdoc incidencias/static/js/*.js -d js-docs",
+    "build": "npx @tailwindcss/cli -i ./incidencias/static/css/input.css -o ./incidencias/static/css/output.css"
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,8 @@
   "homepage": "https://github.com/imartor99/IMTracker-ProyectoINTEGRADO-IgnacioMT#readme",
   "devDependencies": {
     "@tailwindcss/cli": "^4.2.4",
+    "jest": "^29.7.0",
+    "jsdoc": "^4.0.4",
     "tailwindcss": "^4.2.4"
   }
 }
