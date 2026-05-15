@@ -38,12 +38,12 @@ def login_view(request):
             return redirect('incidencias:dashboard')
     else:
         form = LoginForm()
-    return render(request, 'login.html', {'form': form})
+    return render(request, 'registration/login.html', {'form': form})
 
 # Logout
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('incidencias:login')
 
 # === SEÑALES DE AUTENTICACIÓN PARA LOGS ===
 @receiver(user_logged_in)
