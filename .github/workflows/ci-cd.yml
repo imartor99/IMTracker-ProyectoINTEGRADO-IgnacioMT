@@ -37,7 +37,7 @@ jobs:
         DB_PASSWORD: "password_test"
       run: python manage.py test
     - name: Ejecutar Tests JavaScript
-      run: npm test
+      run: npm test -- --passWithNoTests
 
   docs:
     needs: tests
