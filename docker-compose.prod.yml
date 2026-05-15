@@ -38,6 +38,7 @@ services:
     environment:
       - GENERIC_TIMEZONE=Europe/Madrid
       - TZ=Europe/Madrid
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - n8n_data_prod:/home/node/.n8n
 
