@@ -108,7 +108,8 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
-          # 2.5 Limpieza profunda para liberar RAM y Disco
+          # 2.5 Limpieza profunda y eliminación forzada de contenedores atascados
+          sudo docker rm -f imtracker_web_prod imtracker_db_prod imtracker_n8n_prod || true
           sudo docker system prune -a -f
           
           # 3. Levantar la aplicación (Usando configuración de PROD sin Ollama)
@@ -117,6 +118,3 @@ jobs:
           
           # 4. Ejecutar migraciones
           sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
-          
-          # 5. Limpieza de imágenes huérfanas
-          sudo docker image prune -f
