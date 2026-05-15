@@ -17,35 +17,25 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 * **Monitorización y Auditoría (Logs):** Sistema de trazabilidad completo que registra cada evento crítico del servidor en ficheros físicos para auditorías de seguridad.
 * **Sistema de Notificaciones por Email (SMTP):** Integración con Gmail para el envío de correos reales. El sistema notifica automáticamente a los técnicos de IT cuando los usuarios envían sugerencias de mejora.
 * **Recuperación de Contraseña:** Flujo completo y seguro de "Olvidé mi contraseña" que permite a los usuarios restablecer sus credenciales mediante un enlace único enviado a su correo electrónico.
+* **Filtros Combinados e Inteligentes:** Sistema de búsqueda avanzado que permite la **selección múltiple** de estados y técnicos de forma simultánea, facilitando la auditoría de tickets específicos.
+* **Sistema de UX Moderno (Modales):** Motor de notificaciones personalizado que sustituye las alertas nativas del navegador por modales estilizados con animaciones fluidas, mejorando la coherencia visual y la experiencia de usuario.
+* **Manual de Usuario Integrado:** Documentación exhaustiva en [USER_MANUAL.md](USER_MANUAL.md) que cubre desde el primer acceso hasta las funciones avanzadas de IA.
 
 ## Stack Tecnológico
 
 * **Backend:** Python, Django (Manejo de vistas, modelos, y autenticación).
 * **Comunicaciones:** SMTP (Gmail) para notificaciones y recuperación de cuentas.
-* **Frontend:** HTML5, CSS3, **Tailwind CSS** (generación de utilidades mediante CLI), **Vanilla JavaScript** (arquitectura estructurada y modular).
+* **Frontend:** HTML5, CSS3 (Vanilla CSS con arquitectura BEM), **Vanilla JavaScript** (arquitectura estructurada y modular).
 * **IA:** Ollama (Modelos de lenguaje locales para el Chatbot).
+* **APIs Externas:** Nager.Date API para la monitorización de festivos nacionales y optimización de tiempos de respuesta técnica.
 * **Librerías Extra:** jQuery (soporte para DataTables y AJAX), WeasyPrint (Generación de PDFs), DataTables, Bootstrap Icons.
 
-## Sistema de Logs y Auditoría
+## Despliegue y Producción
 
-Para cumplir con los estándares de seguridad y administración, la aplicación implementa un sistema de logging estructurado en tres niveles:
-
-1.  **`django_security.log`**: Registra auditorías de acceso (Login exitoso, Login fallido con IP, Logout, Importación de usuarios). Utiliza *Django Signals* para garantizar que se capturen eventos incluso si ocurren fuera de las vistas personalizadas.
-2.  **`django_general.log`**: Captura errores de ejecución, excepciones en la comunicación con la IA (Ollama) o fallos en APIs externas.
-3.  **`django_requests.log`**: Monitoriza la salud de la red registrando errores HTTP (404, 500) y peticiones mal formadas.
-
-## Seguridad y Buenas Prácticas
-
-La aplicación incorpora medidas de seguridad sólidas heredadas de Django y aplicadas de forma activa en el frontend:
-* **Protección contra Inyección SQL y XSS:** Garantizada por el uso del ORM de Django y el escapado automático de las plantillas HTML.
-* **Control de Acceso Basado en Roles (RBAC):** Verificación de permisos desde el backend, enviando banderas de autorización (`puede_editar`, `puede_borrar`) para renderizar de forma segura las acciones del panel.
-* **Protección CSRF (Cross-Site Request Forgery):** Las operaciones asíncronas con AJAX interceptan la cookie `csrftoken` y la inyectan en las cabeceras de seguridad.
-
-## Próximos Pasos (Fase 5)
-
-El proyecto está en su etapa final de despliegue:
-* **Configuración de CI/CD (GitHub Actions).**
-* **Despliegue final en AWS EC2 con Nginx y SSL.**
+La aplicación está preparada para entornos de alta disponibilidad:
+* **Dockerizado:** Contenedores aislados para Django y la base de datos, garantizando la portabilidad.
+* **CI/CD:** Automatización total mediante **GitHub Actions** para el despliegue continuo en **AWS EC2**.
+* **Seguridad SSL:** Configuración prevista mediante Nginx para cifrado de extremo a extremo.
 
 ---
-*Nota: Este README es un documento vivo y se ampliará con instrucciones de instalación y detalles técnicos exhaustivos cuando el proyecto alcance su fase final.*
+*© 2026 IMTracker Team - Gestión Eficiente de Soporte Técnico*
