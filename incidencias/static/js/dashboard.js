@@ -125,6 +125,15 @@ function mostrarModalExito(mensaje) {
   $("#modalExito").css("display", "flex").hide().fadeIn();
 }
 
+/**
+ * Muestra un modal de error en el centro de la pantalla.
+ * @param {string} mensaje - El texto explicativo del error.
+ */
+function mostrarModalError(mensaje) {
+  $("#modalErrorMensaje").text(mensaje);
+  $("#modalError").css("display", "flex").hide().fadeIn();
+}
+
 // Actualizar CONTADOR
 /**
  * Realiza una petición AJAX para obtener el número de incidencias pendientes y actualiza el contador en el DOM.
@@ -533,17 +542,21 @@ function configurarEventos() {
             }
           }
         } else {
-          alert("Error al actualizar: " + (response.error || ""));
+          mostrarModalError("Error al actualizar: " + (response.error || ""));
         }
       },
       error: function () {
-        alert("Error al enviar datos.");
+        mostrarModalError("Error crítico al enviar los datos al servidor.");
       },
     });
   });
 
   $("#btnCerrarExito").click(function() {
     $("#modalExito").fadeOut();
+  });
+
+  $("#btnCerrarError").click(function() {
+    $("#modalError").fadeOut();
   });
 
   $("#tablaIncidencias").on("click", ".btnBorrar", function () {
@@ -570,7 +583,7 @@ function configurarEventos() {
         }
       },
       error: function () {
-        alert("Error al intentar borrar la incidencia.");
+        mostrarModalError("Error al intentar borrar la incidencia.");
       },
       complete: function () {
         $("#modalConfirmarBorrar").fadeOut();
@@ -638,7 +651,7 @@ function configurarEventos() {
         $("#modalAsignar").fadeIn();
       })
       .fail(function () {
-        alert("Error al cargar usuarios o incidencia.");
+        mostrarModalError("Error al cargar los usuarios o los datos de la incidencia.");
         $("#modalAsignar").fadeOut();
       });
   });
@@ -662,7 +675,7 @@ function configurarEventos() {
           actualizarFilaIncidencia(response.data);
         }
       } else {
-        alert("Error: " + response.error);
+        mostrarModalError("Error en la asignación: " + response.error);
       }
     });
   });
@@ -789,7 +802,7 @@ function initImportarUsuarios() {
         btnSubmit.disabled = false;
         btnSubmit.innerHTML = originalText;
         if (data.success) {
-          alert(data.mensaje);
+          mostrarModalExito(data.mensaje);
           cerrarModal();
         } else {
           divErrores.innerHTML = data.error;

@@ -676,5 +676,19 @@
         </div>
     </div>
 
+    <!-- Modal de Error Personalizado -->
+    <div id="modalError" style="display:none; position: fixed; z-index: 2100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2.5rem; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 15px 35px rgba(0,0,0,0.3); animation: slideDown 0.3s ease-out;">
+            <div style="font-size: 4.5rem; color: #dc3545; margin-bottom: 1.5rem;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <h3 style="margin-bottom: 1rem; color: #1a1a1a; font-size: 1.8rem; font-weight: 800;">{% trans "Ha ocurrido un error" %}</h3>
+            <p id="modalErrorMensaje" style="color: #4a4a4a; margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.5;"></p>
+            <button id="btnCerrarError" class="dashboard__action-btn dashboard__action-btn--delete" style="width: 100%; padding: 1rem; font-weight: bold; border-radius: 12px; border: none; color: white;">
+                {% trans "Cerrar" %}
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>
