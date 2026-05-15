@@ -155,10 +155,11 @@ def crear_incidencia_ajax(request):
                     'id': incidencia.id,
                     'titulo': incidencia.titulo,
                     'descripcion': incidencia.descripcion,
-                    'usuario': f"{request.user.first_name} {request.user.last_name}",
-                    'estado': incidencia.estado, #valor interno
+                    'solicitante': f"{request.user.first_name} {request.user.last_name}",
+                    'tecnico_asignado': _('Sin asignar'),
+                    'estado': incidencia.estado,
                     'estado_display': incidencia.get_estado_display(),
-                    'prioridad': incidencia.prioridad,  #valor interno
+                    'prioridad': incidencia.prioridad,
                     'prioridad_display': incidencia.get_prioridad_display(),
                     'puede_borrar': request.user == incidencia.creador or request.user.departamento in ['it', 'manager'],
                     'puede_actualizar': puede_actualizar,
@@ -297,8 +298,8 @@ def editar_incidencia(request, incidencia_id):
                 'id': incidencia.id,
                 'titulo': incidencia.titulo,
                 'descripcion': incidencia.descripcion,
-                'usuario': incidencia.creador.get_full_name() or incidencia.creador.username,
-                'tecnico': (incidencia.asignado_a.get_full_name() or incidencia.asignado_a.username) if incidencia.asignado_a else _('Sin asignar'),
+                'solicitante': incidencia.creador.get_full_name() or incidencia.creador.username,
+                'tecnico_asignado': (incidencia.asignado_a.get_full_name() or incidencia.asignado_a.username) if incidencia.asignado_a else _('Sin asignar'),
                 'estado': incidencia.estado,
                 'estado_display': incidencia.get_estado_display(),
                 'prioridad_display': incidencia.get_prioridad_display(),
@@ -424,8 +425,8 @@ def asignar_incidencia(request):
             'id': incidencia.id,
             'titulo': incidencia.titulo,
             'descripcion': incidencia.descripcion,
-            'usuario': incidencia.creador.get_full_name() or incidencia.creador.username,
-            'tecnico': (incidencia.asignado_a.get_full_name() or incidencia.asignado_a.username) if incidencia.asignado_a else _('Sin asignar'),
+            'solicitante': incidencia.creador.get_full_name() or incidencia.creador.username,
+            'tecnico_asignado': (incidencia.asignado_a.get_full_name() or incidencia.asignado_a.username) if incidencia.asignado_a else _('Sin asignar'),
             'estado': incidencia.estado,
             'estado_display': incidencia.get_estado_display(),
             'prioridad_display': incidencia.get_prioridad_display(),
@@ -454,21 +455,20 @@ def filtrar_incidencias(request):
         incidencias = incidencias.filter(estado=estado)
 
     if usuarios_ids:
+        # Filtramos estrictamente por el técnico que tiene la incidencia asignada
         incidencias = incidencias.filter(asignado_a__id__in=usuarios_ids)
 
-    # Si no es de IT ni manager, mostrar solo las incidencias de su departamento (igual que en la carga inicial)
+    # Si no es de IT ni manager, mostrar solo las incidencias de su departamento
     if request.user.departamento not in ['it', 'manager']:
         incidencias = incidencias.filter(creador__departamento=request.user.departamento)
 
     data = []
     for inc in incidencias:
-        # Solo puede borrar si la incidencia está pendiente y es su creador
+        # ... (lógica de permisos igual) ...
         puede_borrar = (
             request.user.departamento in ['it', 'manager'] or
             (inc.estado == 'pendiente' and request.user == inc.creador)
         )
-
-        # Solo pueden ver actualizar/asignar los usuarios del dpto. IT o Manager
         puede_actualizar = request.user.departamento in ['it', 'manager']
         puede_asignar = request.user.departamento in ['it', 'manager']
 
@@ -476,8 +476,8 @@ def filtrar_incidencias(request):
             'id': inc.id,
             'titulo': inc.titulo,
             'descripcion': inc.descripcion,
-            'usuario': inc.creador.get_full_name() or inc.creador.username,
-            'tecnico': (inc.asignado_a.get_full_name() or inc.asignado_a.username) if inc.asignado_a else _('Sin asignar'),
+            'solicitante': inc.creador.get_full_name() or inc.creador.username,
+            'tecnico_asignado': (inc.asignado_a.get_full_name() or inc.asignado_a.username) if inc.asignado_a else _('Sin asignar'),
             'estado_display': inc.get_estado_display(),
             'prioridad_display': inc.get_prioridad_display(),
             'puede_borrar': puede_borrar,
