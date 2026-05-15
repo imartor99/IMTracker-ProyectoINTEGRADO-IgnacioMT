@@ -99,7 +99,14 @@
                 </div>
                 <div class="sidebar__user-info">
                     <span class="sidebar__user-name">{{ request.user.first_name }} {{ request.user.last_name }}</span>
-                    <span class="sidebar__user-role">{% if request.user.departamento %}{{ request.user.departamento }}{% else %}{% trans "Sin departamento" %}{% endif %}</span>
+                    <span class="sidebar__user-role">
+                        {% if request.user.departamento %}
+                            {% trans request.user.departamento|lower as depto_traducido %}
+                            {{ depto_traducido|capfirst }}
+                        {% else %}
+                            {% trans "Sin departamento" %}
+                        {% endif %}
+                    </span>
                 </div>
             </div>
             <a class="sidebar__logout" href="{% url 'incidencias:password_change' %}" style="margin-bottom: 0.5rem; color: var(--color-text-secondary);">
@@ -125,7 +132,16 @@
                 </button>
                 <div>
                     <h1 class="dashboard__title">{% trans "Panel de Incidencias" %}</h1>
-                    <p class="dashboard__subtitle">{% trans "Bienvenid@" %}, {{ request.user.first_name }}. {% trans "Departamento:" %} {{ request.user.departamento }}</p>
+                    <p class="dashboard__subtitle">
+                        {% trans "Bienvenid@" %}, {{ request.user.first_name }}. 
+                        {% trans "Departamento:" %} 
+                        {% if request.user.departamento == 'manager' %}
+                            Manager IT
+                        {% else %}
+                            {% trans request.user.departamento|lower as depto_traducido %}
+                            {{ depto_traducido|capfirst }}
+                        {% endif %}
+                    </p>
                 </div>
             </div>
             
