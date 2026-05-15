@@ -731,6 +731,8 @@ def api_chatbot(request):
         return JsonResponse({'success': False, 'error': _('La IA está tardando demasiado en responder.')}, status=504)
 
     except http_client.exceptions.ConnectionError:
+        # Nota: En entornos de nube (como AWS EC2 t2.micro), Ollama se desactiva 
+        # para evitar el agotamiento del espacio en disco (8GB limit).
         return JsonResponse({
             'success': False, 
             'error': _('La IA está desactivada en este entorno por limitaciones de hardware (AWS). Pruébala en el entorno local con Ollama.')
