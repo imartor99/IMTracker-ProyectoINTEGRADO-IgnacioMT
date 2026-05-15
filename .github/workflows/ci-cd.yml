@@ -109,8 +109,8 @@ jobs:
           fi
 
           # 3. Levantar la aplicación (Usando configuración de PROD sin Ollama)
-          sudo docker-compose -f docker-compose.prod.yml down
-          sudo docker-compose -f docker-compose.prod.yml up --build -d
+          sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} docker-compose -f docker-compose.prod.yml down
+          sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} docker-compose -f docker-compose.prod.yml up --build -d
           
           # 4. Limpieza de imágenes huérfanas
           sudo docker image prune -f
