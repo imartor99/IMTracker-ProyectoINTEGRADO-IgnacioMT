@@ -4,6 +4,9 @@ from django.utils import timezone
 # Create your models here.
 
 class UsuarioPersonalizado(AbstractUser):
+    """
+    Extiende el modelo de usuario por defecto de Django para incluir el campo departamento.
+    """
     DEPARTAMENTOS = (
         ('compras', 'Compras'),
         ('ventas', 'Ventas'),
@@ -17,6 +20,11 @@ class UsuarioPersonalizado(AbstractUser):
 
 
 class Incidencia(models.Model):
+    """
+    Representa un ticket de soporte en el sistema.
+    Almacena información sobre el título, descripción, prioridad, estado y personal involucrado.
+    Incluye campos para análisis automático mediante IA.
+    """
     ESTADOS = (
         ('pendiente', 'Pendiente'),
         ('en_curso', 'En curso'),
@@ -53,6 +61,9 @@ class Incidencia(models.Model):
     
 
 class Observacion(models.Model):
+    """
+    Permite añadir comentarios u observaciones adicionales a una incidencia específica.
+    """
     incidencia = models.ForeignKey(Incidencia, on_delete=models.CASCADE, related_name='observaciones')
     autor = models.ForeignKey(UsuarioPersonalizado, on_delete=models.CASCADE)
     texto = models.TextField()

@@ -1,3 +1,7 @@
+"""
+Configuración de rutas (URLs) para la aplicación de Incidencias.
+Define los endpoints para autenticación, gestión de tickets y exportación de datos.
+"""
 # incidencias/urls.py
 from django.urls import path
 from django.contrib.auth.decorators import login_required
