@@ -735,7 +735,7 @@ def api_chatbot(request):
 @login_required
 @require_POST
 def importar_usuarios_csv(request):
-    if request.user.departamento not in ['it', 'manager']:
+    if request.user.departamento not in ['manager', 'it']:
         return JsonResponse({'success': False, 'error': _('No tienes permisos para importar usuarios.')}, status=403)
         
     if 'archivo_csv' not in request.FILES:
