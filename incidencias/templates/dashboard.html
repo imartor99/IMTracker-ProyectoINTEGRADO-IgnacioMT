@@ -38,7 +38,7 @@
 <body class="dashboard-page">
 
     <!-- Overlay para móviles -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="cerrarMenuMovil()"></div>
 
     <!-- ===== SIDEBAR ===== -->
     <aside class="sidebar" id="sidebar">
@@ -47,9 +47,14 @@
             <span class="sidebar__brand-name">IMTracker</span>
         </div>
 
-        <!-- Botón toggle sidebar -->
-        <button class="sidebar__toggle" id="sidebarToggle" title="Ocultar menú">
+        <!-- Botón toggle sidebar (escritorio) -->
+        <button class="sidebar__toggle" id="sidebarToggle" title="{% trans 'Ocultar menú' %}">
             <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <!-- Botón cerrar sidebar (móvil) -->
+        <button class="sidebar__close-mobile" id="sidebarCloseMobile" onclick="cerrarMenuMovil()">
+            <i class="bi bi-x-lg"></i>
         </button>
 
         <nav class="sidebar__nav">
@@ -223,8 +228,8 @@
                         <td>{{ inc.get_estado_display }}</td>
                         <td>{{ inc.get_prioridad_display }}</td>
                         <td>
-                            {% if request.user.departamento == 'it' or request.user.departamento == 'manager' %}
                             <div class="dashboard__actions">
+                                {% if request.user.departamento == 'it' or request.user.departamento == 'manager' %}
                                 <button class="btnActualizar dashboard__action-btn dashboard__action-btn--edit" data-id="{{ inc.id }}">
                                     <i class="bi bi-pencil-square"></i> {% trans "Actualizar" %}
                                 </button>
@@ -234,17 +239,16 @@
                                 <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="{{ inc.id }}">
                                     <i class="bi bi-trash3"></i> {% trans "Borrar" %}
                                 </button>
+                                {% elif request.user == inc.creador and inc.estado == 'pendiente' %}
+                                <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="{{ inc.id }}">
+                                    <i class="bi bi-trash3"></i> {% trans "Borrar" %}
+                                </button>
+                                {% endif %}
+                                
                                 <a href="{% url 'incidencias:exportar_ticket_pdf' inc.id %}" target="_blank" class="dashboard__action-btn dashboard__action-btn--pdf">
                                     <i class="bi bi-file-earmark-pdf-fill"></i> {% trans "Ticket PDF" %}
                                 </a>
                             </div>
-                            {% elif request.user == inc.creador and inc.estado == 'pendiente' %}
-                            <div class="dashboard__actions">
-                                <button class="btnBorrar dashboard__action-btn dashboard__action-btn--delete" data-id="{{ inc.id }}">
-                                    <i class="bi bi-trash3"></i> {% trans "Borrar" %}
-                                </button>
-                            </div>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -585,37 +589,32 @@
         }
     </script>
 
-    <!-- Toggle Sidebar -->
+    <!-- Funciones globales de UI -->
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('sidebarToggle'); // Botón escritorio
-        const mobileBtn = document.getElementById('mobileMenuBtn'); // Botón móvil
-        const overlay = document.getElementById('sidebarOverlay');
-        const page = document.querySelector('.dashboard-page');
-
-        // Toggle en escritorio (colapsar)
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('sidebar--collapsed');
-                page.classList.toggle('dashboard-page--collapsed');
-            });
+        function cerrarMenuMovil() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if(sidebar) sidebar.classList.remove('sidebar--mobile-open');
+            if(overlay) overlay.classList.remove('sidebar-overlay--active');
         }
 
-        // Toggle en móvil (abrir menú lateral)
-        if (mobileBtn) {
-            mobileBtn.addEventListener('click', () => {
-                sidebar.classList.add('sidebar--mobile-open');
-                overlay.classList.add('sidebar-overlay--active');
-            });
-        }
+        $(document).ready(function() {
+            const $sidebar = $('#sidebar');
+            const $overlay = $('#sidebarOverlay');
+            const $page = $('.dashboard-page');
 
-        // Cerrar menú al hacer clic fuera (en móvil)
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                sidebar.classList.remove('sidebar--mobile-open');
-                overlay.classList.remove('sidebar-overlay--active');
+            // Abrir menú en móvil
+            $('#mobileMenuBtn').on('click', function() {
+                $sidebar.addClass('sidebar--mobile-open');
+                $overlay.addClass('sidebar-overlay--active');
             });
-        }
+
+            // Toggle en escritorio (colapsar)
+            $('#sidebarToggle').on('click', function() {
+                $sidebar.toggleClass('sidebar--collapsed');
+                $page.toggleClass('dashboard-page--collapsed');
+            });
+        });
     </script>
 
     <!-- CHATBOT FLOTANTE (Solo para usuarios normales) -->

@@ -70,8 +70,20 @@
     left: 0;
     width: var(--sidebar-width);
     height: 100vh;
-    z-index: 100;
+    z-index: 300; /* Aumentado para estar por encima de todo */
+    overflow-y: auto; /* Permitir scroll si hay mucho contenido */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
     animation: slideInLeft 0.5s ease forwards;
+}
+
+/* Estilos para el scrollbar en Webkit */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
 }
 
 @keyframes slideInLeft {
@@ -107,6 +119,30 @@
 
 .sidebar--collapsed .sidebar__toggle i {
     transform: rotate(180deg);
+}
+
+/* Botón cerrar móvil (oculto por defecto) */
+.sidebar__close-mobile {
+    display: none;
+    position: fixed; /* Cambiado a fixed para que no haga scroll con el menú */
+    top: 1.5rem;
+    left: calc(var(--sidebar-width) - 50px); /* Posicionado relativo al borde del sidebar */
+    background: var(--color-primary);
+    border: none;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    z-index: 310; /* Por encima del sidebar */
+    box-shadow: var(--shadow-md);
+}
+
+.sidebar__close-mobile:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Estado colapsado del sidebar */
@@ -980,7 +1016,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
         position: fixed;
         left: -260px;
         transition: left var(--transition-normal);
-        z-index: 200;
+        z-index: 300; /* Aumentado a 300 para estar por encima del overlay (250) */
         box-shadow: var(--shadow-lg);
     }
 
@@ -999,11 +1035,11 @@ input[type="file"].modal-card__input::file-selector-button:hover {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 150;
-        backdrop-filter: blur(2px);
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.7); /* Más oscuro para mejor contraste */
+        z-index: 250; /* Justo debajo del sidebar (300) */
+        backdrop-filter: blur(4px);
     }
 
     .sidebar-overlay--active {
@@ -1025,6 +1061,11 @@ input[type="file"].modal-card__input::file-selector-button:hover {
 
     .dashboard__mobile-menu-btn {
         display: block;
+    }
+
+    /* Mostrar botón cerrar móvil en el sidebar */
+    .sidebar__close-mobile {
+        display: flex;
     }
 }
 
@@ -1083,6 +1124,21 @@ input[type="file"].modal-card__input::file-selector-button:hover {
         max-height: 70vh;
         overflow-y: auto;
     }
+
+    /* Chatbot flotante en móviles */
+    .chatbot-widget {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+        z-index: 9999;
+    }
+    .chatbot__window {
+        width: 100%;
+        height: 65vh;
+        max-height: 450px;
+        margin-bottom: 1rem;
+        border-radius: var(--radius-md);
+    }
 }
 
 /* Móviles pequeños */
@@ -1105,6 +1161,17 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     #filtrosUsuarios button {
         padding: 0.375rem 0.625rem;
         font-size: 0.75rem;
+    }
+
+    /* Chatbot flotante en móviles pequeños */
+    .chatbot-widget {
+        bottom: 0.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+    }
+    .chatbot__window {
+        width: 100%;
+        height: 60vh;
     }
 }
 
@@ -1271,6 +1338,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    pointer-events: none; /* Permite que los clics pasen a través del contenedor transparente */
 }
 
 .chatbot__toggle {
@@ -1287,6 +1355,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     align-items: center;
     justify-content: center;
     transition: transform 0.3s var(--transition-bounce), background-color 0.2s;
+    pointer-events: auto; /* Reactivar clics en el botón flotante */
 }
 
 .chatbot__toggle:hover {
@@ -1307,6 +1376,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     transition: opacity 0.3s ease, transform 0.3s ease;
     transform-origin: bottom right;
     border: 1px solid var(--color-border);
+    pointer-events: auto; /* Reactivar clics en la ventana del chat */
 }
 
 .chatbot__window--hidden {
@@ -1430,15 +1500,4 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     0% { opacity: .2; }
     20% { opacity: 1; }
     100% { opacity: .2; }
-}
-
-@media (max-width: 768px) {
-    .chatbot-widget {
-        bottom: 1rem;
-        right: 1rem;
-    }
-    .chatbot__window {
-        width: 300px;
-        height: 400px;
-    }
 }
