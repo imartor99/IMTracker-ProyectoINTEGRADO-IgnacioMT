@@ -229,6 +229,7 @@
                         <th>{% trans "Título" %}</th>
                         <th>{% trans "Descripción" %}</th>
                         <th>{% trans "Usuario" %}</th>
+                        <th>{% trans "Técnico" %}</th>
                         <th>{% trans "Estado" %}</th>
                         <th>{% trans "Prioridad" %}</th>
                         <th>{% trans "Acciones" %}</th>
@@ -241,6 +242,13 @@
                         <td>{{ inc.titulo }}</td>
                         <td>{{ inc.descripcion|truncatechars:50 }}</td>
                         <td>{{ inc.creador.first_name }} {{ inc.creador.last_name }}</td>
+                        <td>
+                            {% if inc.asignado_a %}
+                                {{ inc.asignado_a.first_name }} {{ inc.asignado_a.last_name }}
+                            {% else %}
+                                <span class="badge badge--empty">{% trans "Sin asignar" %}</span>
+                            {% endif %}
+                        </td>
                         <td>{{ inc.get_estado_display }}</td>
                         <td>{{ inc.get_prioridad_display }}</td>
                         <td>

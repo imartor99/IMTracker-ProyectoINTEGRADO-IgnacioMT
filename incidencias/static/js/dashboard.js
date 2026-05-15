@@ -171,6 +171,7 @@ function actualizarFilaIncidencia(data) {
     data.titulo,
     data.descripcion,
     data.usuario,
+    data.tecnico,
     data.estado_display,
     data.prioridad_display,
     acciones,
@@ -335,6 +336,7 @@ function aplicarFiltros() {
             inc.titulo,
             inc.descripcion,
             inc.usuario,
+            inc.tecnico,
             inc.estado_display,
             inc.prioridad_display,
             acciones,
@@ -417,6 +419,7 @@ function configurarEventos() {
             inc.titulo,
             inc.descripcion,
             inc.usuario,
+            isEnglish ? "Not assigned" : "Sin asignar",
             inc.estado_display,
             inc.prioridad_display,
             acciones,
@@ -909,7 +912,7 @@ const main = () => {
        * Aplica clases CSS personalizadas a las filas según el estado de la incidencia.
        * Esto permite el código de colores dinámico en la tabla.
        */
-      let estado = data[4].toLowerCase().replace(/\s+/g, "-");
+      let estado = data[5].toLowerCase().replace(/\s+/g, "-");
       const id = data[0];
       $(row).addClass(estado).attr("id", `incidencia-${id}`);
     },
