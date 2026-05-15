@@ -36,6 +36,8 @@ jobs:
         DB_USER: "user_test"
         DB_PASSWORD: "password_test"
       run: python manage.py test
+    - name: Ejecutar Tests JavaScript
+      run: npm test
 
   docs:
     needs: tests
@@ -59,7 +61,7 @@ jobs:
       run: |
         mkdir -p documentation/python
         mkdir -p documentation/javascript
-        python -m pydoc -w incidencias.views incidencias.models incidencias.urls
+        python -c "import os, django, pydoc; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'IncidenciasApp.settings'); django.setup(); pydoc.writedoc('incidencias.views'); pydoc.writedoc('incidencias.models'); pydoc.writedoc('incidencias.urls')"
         mv *.html documentation/python/
         npm run docs --if-present
         if [ -d "js-docs" ]; then mv js-docs/* documentation/javascript/; fi
