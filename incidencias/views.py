@@ -444,15 +444,15 @@ def filtrar_incidencias(request):
     Filtra las incidencias en base a estado, técnicos asignados y permisos de departamento.
     Retorna los resultados en formato JSON para el DataTable del dashboard.
     """
-    estado = request.GET.get('estado')
+    estados = request.GET.getlist('estados')
     usuarios_ids = request.GET.getlist('usuarios')
     usuario = request.user
 
     # Nos quedamos solo con las que no se han borrado en el Datatable(ocultas false en BD)
     incidencias = Incidencia.objects.filter(oculta=False)
 
-    if estado:
-        incidencias = incidencias.filter(estado=estado)
+    if estados:
+        incidencias = incidencias.filter(estado__in=estados)
 
     if usuarios_ids:
         # Filtramos estrictamente por el técnico que tiene la incidencia asignada

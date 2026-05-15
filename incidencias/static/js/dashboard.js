@@ -47,7 +47,7 @@ const dtLanguage = isEnglish
 let tabla;
 
 // FILTROS adicionales
-let estadoSeleccionado = "";
+let estadosSeleccionados = [];
 let usuariosSeleccionados = [];
 
 // BORRAR incidencias - Modal de confirmación personalizado
@@ -319,7 +319,7 @@ function aplicarFiltros() {
     url: "/filtrar_incidencias/",
     type: "GET",
     data: {
-      estado: estadoSeleccionado,
+      estados: estadosSeleccionados,
       usuarios: usuariosSeleccionados,
     },
     traditional: true, //Esta opción le dice a jQuery cómo serializar los arrays en la URL cuando haces peticiones GET, asi django los reconoce bien
@@ -656,9 +656,31 @@ function configurarEventos() {
 
   // Aplicar filtros estado
   $(document).on("click", ".filtro-estado", function () {
-    $(".filtro-estado").removeClass("activo");
-    $(this).addClass("activo");
-    estadoSeleccionado = $(this).data("estado");
+    const estado = $(this).data("estado");
+
+    if (estado === "") {
+      // Si pulsa "Todos", limpiamos el array y desactivamos los demás
+      estadosSeleccionados = [];
+      $(".filtro-estado").removeClass("activo");
+      $(this).addClass("activo");
+    } else {
+      // Quitamos el activo de "Todos" si estaba
+      $(".filtro-estado[data-estado='']").removeClass("activo");
+      
+      $(this).toggleClass("activo");
+
+      if ($(this).hasClass("activo")) {
+        estadosSeleccionados.push(estado);
+      } else {
+        estadosSeleccionados = estadosSeleccionados.filter((e) => e !== estado);
+      }
+
+      // Si no queda ninguno seleccionado, volvemos a marcar "Todos"
+      if (estadosSeleccionados.length === 0) {
+        $(".filtro-estado[data-estado='']").addClass("activo");
+      }
+    }
+    
     aplicarFiltros();
   });
 
