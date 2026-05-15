@@ -662,5 +662,19 @@
     </div>
     {% endif %}
 
+    <!-- Modal de Éxito Personalizado -->
+    <div id="modalExito" style="display:none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center;">
+        <div style="background: white; padding: 2.5rem; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 15px-35px rgba(0,0,0,0.3); animation: slideDown 0.3s ease-out;">
+            <div style="font-size: 4.5rem; color: #28a745; margin-bottom: 1.5rem;">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h3 style="margin-bottom: 1rem; color: #1a1a1a; font-size: 1.8rem; font-weight: 800;">{% trans "¡Operación Exitosa!" %}</h3>
+            <p id="modalExitoMensaje" style="color: #4a4a4a; margin-bottom: 2rem; font-size: 1.1rem; line-height: 1.5;"></p>
+            <button id="btnCerrarExito" class="dashboard__action-btn dashboard__action-btn--edit" style="width: 100%; padding: 1rem; font-weight: bold; border-radius: 12px; transition: transform 0.2s;">
+                {% trans "Entendido" %}
+            </button>
+        </div>
+    </div>
+
 </body>
 </html>

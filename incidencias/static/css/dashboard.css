@@ -1501,3 +1501,7 @@ input[type="file"].modal-card__input::file-selector-button:hover {
     20% { opacity: 1; }
     100% { opacity: .2; }
 }
+@keyframes slideDown {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

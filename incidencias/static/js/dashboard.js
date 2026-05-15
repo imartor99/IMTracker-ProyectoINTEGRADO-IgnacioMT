@@ -116,6 +116,15 @@ function mostrarMensajeFlotante(mensaje) {
   setTimeout(() => $mensaje.fadeOut(), 3000);
 }
 
+/**
+ * Muestra un modal de éxito en el centro de la pantalla.
+ * @param {string} mensaje - El texto descriptivo de la operación realizada.
+ */
+function mostrarModalExito(mensaje) {
+  $("#modalExitoMensaje").text(mensaje);
+  $("#modalExito").css("display", "flex").hide().fadeIn();
+}
+
 // Actualizar CONTADOR
 /**
  * Realiza una petición AJAX para obtener el número de incidencias pendientes y actualiza el contador en el DOM.
@@ -504,13 +513,13 @@ function configurarEventos() {
       },
       success: function (response) {
         if (response.success) {
-          // Traducción de la alerta
-          alert(
+          $("#modalDetalleIncidencia").fadeOut();
+          
+          mostrarModalExito(
             isEnglish
               ? "Incident updated successfully."
               : "Incidencia actualizada correctamente.",
           );
-          $("#modalDetalleIncidencia").fadeOut();
 
           if (response.data) {
             actualizarFilaIncidencia(response.data);
@@ -531,6 +540,10 @@ function configurarEventos() {
         alert("Error al enviar datos.");
       },
     });
+  });
+
+  $("#btnCerrarExito").click(function() {
+    $("#modalExito").fadeOut();
   });
 
   $("#tablaIncidencias").on("click", ".btnBorrar", function () {
@@ -641,7 +654,7 @@ function configurarEventos() {
         const msg = isEnglish
           ? "Incident assigned successfully"
           : "Incidencia asignada correctamente";
-        mostrarMensajeFlotante(msg);
+        mostrarModalExito(msg);
         $("#modalAsignar").fadeOut();
 
         // Redibuja la fila si el backend devuelve data
