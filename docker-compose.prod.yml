@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:15
-    container_name: imtracker_db
+    container_name: imtracker_db_prod
     environment:
       - POSTGRES_DB=imtracker
       - POSTGRES_USER=${DB_USER}
@@ -11,13 +11,12 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_prod:/var/lib/postgresql/data
 
   web:
     build: .
-    container_name: imtracker_web
-    # Servidor de desarrollo para que carguen los estáticos (CSS/JS) en local
-    command: python manage.py runserver 0.0.0.0:8000
+    container_name: imtracker_web_prod
+    command: gunicorn IncidenciasApp.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
@@ -33,24 +32,15 @@ services:
 
   n8n:
     image: n8nio/n8n:latest
-    container_name: imtracker_n8n
+    container_name: imtracker_n8n_prod
     ports:
       - "5678:5678"
     environment:
       - GENERIC_TIMEZONE=Europe/Madrid
       - TZ=Europe/Madrid
     volumes:
-      - n8n_data:/home/node/.n8n
-
-  ollama:
-    image: ollama/ollama:latest
-    container_name: imtracker_ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
+      - n8n_data_prod:/home/node/.n8n
 
 volumes:
-  n8n_data:
-  postgres_data:
-  ollama_data:
+  n8n_data_prod:
+  postgres_data_prod:

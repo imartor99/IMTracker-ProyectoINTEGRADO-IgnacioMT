@@ -729,6 +729,12 @@ def api_chatbot(request):
 
     except http_client.exceptions.Timeout:
         return JsonResponse({'success': False, 'error': _('La IA está tardando demasiado en responder.')}, status=504)
+
+    except http_client.exceptions.ConnectionError:
+        return JsonResponse({
+            'success': False, 
+            'error': _('La IA está desactivada en este entorno por limitaciones de hardware (AWS). Pruébala en el entorno local con Ollama.')
+        }, status=503)
     except Exception as e:
         print(f"Error en api_chatbot: {e}")
         logger.error(f'Error en api_chatbot: {e}')
