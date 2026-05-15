@@ -2,7 +2,7 @@
 
 **IMTracker** es una aplicación web diseñada para facilitar la creación, gestión y seguimiento de incidencias de IT. Este proyecto está siendo desarrollado como Trabajo de Fin de Grado (TFG) para el ciclo de 2º DAW.
 
-## Características Principales (Fase 3 Completada)
+## Características Principales 
 
 El proyecto se encuentra actualmente estable y cuenta con las siguientes funcionalidades operativas:
 
@@ -15,10 +15,13 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 * **Sistema de Seguridad de Contraseñas:** Interfaz personalizada y robusta para que los nuevos usuarios puedan cambiar su contraseña predeterminada por una privada, utilizando el motor de encriptación nativo de Django.
 * **Integración con IA (Chatbot IT):** Sistema de asistencia inteligente basado en **Ollama** que analiza el historial de incidencias para sugerir soluciones técnicas y responder dudas sobre el sistema en tiempo real.
 * **Monitorización y Auditoría (Logs):** Sistema de trazabilidad completo que registra cada evento crítico del servidor en ficheros físicos para auditorías de seguridad.
+* **Sistema de Notificaciones por Email (SMTP):** Integración con Gmail para el envío de correos reales. El sistema notifica automáticamente a los técnicos de IT cuando los usuarios envían sugerencias de mejora.
+* **Recuperación de Contraseña:** Flujo completo y seguro de "Olvidé mi contraseña" que permite a los usuarios restablecer sus credenciales mediante un enlace único enviado a su correo electrónico.
 
 ## Stack Tecnológico
 
 * **Backend:** Python, Django (Manejo de vistas, modelos, y autenticación).
+* **Comunicaciones:** SMTP (Gmail) para notificaciones y recuperación de cuentas.
 * **Frontend:** HTML5, CSS3, **Tailwind CSS** (generación de utilidades mediante CLI), **Vanilla JavaScript** (arquitectura estructurada y modular).
 * **IA:** Ollama (Modelos de lenguaje locales para el Chatbot).
 * **Librerías Extra:** jQuery (soporte para DataTables y AJAX), WeasyPrint (Generación de PDFs), DataTables, Bootstrap Icons.
@@ -40,8 +43,7 @@ La aplicación incorpora medidas de seguridad sólidas heredadas de Django y apl
 
 ## Próximos Pasos (Fase 5)
 
-El proyecto está alcanzando su fase final. Las futuras implementaciones incluirán:
-* **Validación de cuentas por correo electrónico.**
+El proyecto está en su etapa final de despliegue:
 * **Configuración de CI/CD (GitHub Actions).**
 * **Despliegue final en AWS EC2 con Nginx y SSL.**
 
