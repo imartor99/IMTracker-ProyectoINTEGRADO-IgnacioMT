@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import sys
 
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -41,7 +42,11 @@ if _csrf_origins:
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
 
 if not SECRET_KEY:
-    raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
+    # Si no hay SECRET_KEY, solo fallamos si no estamos en modo test
+    if 'test' not in sys.argv:
+        raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
+    else:
+        SECRET_KEY = 'test-key-ci-cd'
 
 
 # Application definition
@@ -56,14 +61,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
-AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'  #le indica a Django que, en lugar de usar el modelo de usuario predeterminado, debe utilizar el modelo personalizado de usuario definido en tu aplicación incidencias (en este caso, UsuarioPersonalizado)
-
+AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    # He añadido LocaleMiddleware justo después del SessionMiddleware para que Django reconozca el idioma del usuario
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,7 +87,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # He añadido este context processor para que la variable LANGUAGE_CODE esté disponible en mis plantillas HTML
                 'django.template.context_processors.i18n',
             ],
         },
@@ -97,16 +99,24 @@ WSGI_APPLICATION = 'IncidenciasApp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'imtracker'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'db'),  # 'db' es el estándar en Docker local
-        'PORT': '5432',
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'imtracker'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST', 'db'),
+            'PORT': '5432',
+        }
+    }
 
 
 # Password validation
@@ -131,16 +141,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-# He configurado el idioma por defecto a 'es' en formato corto
 LANGUAGE_CODE = 'es'
 
-# He definido los dos idiomas que voy a soportar en el proyecto: Español e Inglés
 LANGUAGES = [
     ('es', _('Español')),
     ('en', _('English')),
 ]
 
-# He indicado la carpeta donde guardaré los archivos .po y .mo con las traducciones
 LOCALE_PATHS = [
     BASE_DIR / 'locale',
 ]
@@ -161,15 +168,12 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'incidencias/static'),
 ]
 
-# Carpeta donde se guardarán los estáticos al hacer collectstatic (Necesario para WhiteNoise)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Solo usamos WhiteNoise para comprimir si no estamos en modo DEBUG (Local)
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Configuración de Correo Electrónico
-# Usamos Gmail SMTP para enviar correos reales (Credenciales cargadas desde .env)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -183,39 +187,19 @@ LOGIN_URL = 'incidencias:login'
 LOGIN_REDIRECT_URL = 'incidencias:dashboard'
 LOGOUT_REDIRECT_URL = 'incidencias:login'
 
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#Para la carga de imagenes en las incidencias
+# Medios
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-# La configuración SMTP ya está definida arriba.
-
-
-# =============================================================================
-# FICHEROS DE LOGS
-# =============================================================================
-# Configuración del sistema de logging de Django.
-# Se generan 3 ficheros de log dentro de la carpeta 'logs/' del proyecto:
-#   - django_general.log  → Errores y warnings de toda la aplicación
-#   - django_security.log → Intentos de login, cambios de contraseña, CSRF, etc.
-#   - django_requests.log → Peticiones HTTP (solo errores 4xx y 5xx)
-
-# Creamos la carpeta 'logs/' automáticamente si no existe
+# Logging
 LOG_DIR = BASE_DIR / 'logs'
 LOG_DIR.mkdir(exist_ok=True)
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-
-    # Formateadores: definen cómo se escribe cada línea en el fichero
     'formatters': {
         'verbose': {
             'format': '[{asctime}] {levelname} {name} {module}.{funcName}:{lineno} → {message}',
