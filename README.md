@@ -1,6 +1,8 @@
 # IMTracker - Sistema de Gestión de Incidencias
 
-**IMTracker** es una aplicación web FullStack diseñada para facilitar la creación, gestión y seguimiento de incidencias de IT. Este proyecto está siendo desarrollado como Proyecto Integrado para el ciclo de 2º DAW.
+**IMTracker** es una aplicación web FullStack profesional diseñada para la gestión y seguimiento de incidencias de IT. Desplegada en la nube con una arquitectura moderna de microservicios.
+
+**Acceso a Producción:** [https://imtracker.nachodaw.com](https://imtracker.nachodaw.com)
 
 ## Objetivos y Justificación
 
@@ -12,7 +14,6 @@ El proyecto nace de la necesidad de **optimizar la comunicación** entre los dep
 *   **Escalabilidad**: Construir una arquitectura moderna basada en contenedores (Docker) capaz de desplegarse en la nube (AWS) con facilidad.
 
 ---
-
 
 ## Características Principales 
 
@@ -35,19 +36,27 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 
 ## Stack Tecnológico
 
-* **Backend:** Python, Django (Manejo de vistas, modelos, y autenticación).
-* **Comunicaciones:** SMTP (Gmail) para notificaciones y recuperación de cuentas.
+* **Backend:** Python 3.13, Django 6.0 (Manejo de vistas, modelos, y autenticación).
+* **Base de Datos:** PostgreSQL 15 (Motor relacional de alto rendimiento).
 * **Frontend:** HTML5, CSS3 (Vanilla CSS con arquitectura BEM), **Vanilla JavaScript** (arquitectura estructurada y modular).
+* **Servidor Web & Proxy:** Nginx (Servidor de alto rendimiento para tráfico y estáticos).
+* **Infraestructura:** AWS EC2 (Instancia t2.micro optimizada con 1GB SWAP).
+* **Seguridad:** Certbot & Let's Encrypt (Cifrado de datos de extremo a extremo via HTTPS).
+* **Contenedores:** Docker & Docker Compose (Orquestación de servicios).
+* **Comunicaciones:** SMTP (Gmail) para notificaciones y recuperación de cuentas.
 * **IA:** Ollama (Modelos de lenguaje locales para el Chatbot).
 * **APIs Externas:** Nager.Date API para la monitorización de festivos nacionales y optimización de tiempos de respuesta técnica.
 * **Librerías Extra:** jQuery (soporte para DataTables y AJAX), WeasyPrint (Generación de PDFs), DataTables, Bootstrap Icons.
 
-## Despliegue y Producción
+## Despliegue y CI/CD
 
-La aplicación está preparada para entornos de alta disponibilidad:
-* **Dockerizado:** Contenedores aislados para Django y la base de datos, garantizando la portabilidad.
-* **CI/CD:** Automatización total mediante **GitHub Actions** para el despliegue continuo en **AWS EC2**.
-* **Seguridad SSL:** Configuración prevista mediante Nginx para cifrado de extremo a extremo.
+El proyecto cuenta con una canalización de **Integración y Despliegue Continuo (CI/CD)**:
+* **GitHub Actions:** Automatización total del ciclo de vida. Al hacer `push` a `main`, el sistema:
+    1. Se conecta vía SSH a la instancia de **AWS**.
+    2. Realiza una limpieza agresiva de recursos (`docker system prune`) para optimizar el almacenamiento.
+    3. Descarga las imágenes de forma serializada para proteger la estabilidad del hardware.
+    4. Reconstruye el entorno, aplica migraciones y recolecta archivos estáticos automáticamente.
+* **Monitorización:** Sistema de logs físicos y comprobaciones de despliegue (Health Checks).
 
 ---
 *© 2026 IMTracker Team - Gestión Eficiente de Soporte Técnico*
