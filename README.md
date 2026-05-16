@@ -36,7 +36,7 @@ El proyecto se encuentra actualmente estable y cuenta con las siguientes funcion
 
 ## Stack Tecnológico
 
-* **Backend:** Python 3.13, Django 6.0 (Manejo de vistas, modelos, y autenticación).
+* **Backend:** Python 3.13, Django 6.0 (Manejo de vistas, modelos, y autenticación) y Gunicorn (Servidor WSGI).
 * **Base de Datos:** PostgreSQL 15 (Motor relacional de alto rendimiento).
 * **Frontend:** HTML5, CSS3 (Vanilla CSS con arquitectura BEM), **Vanilla JavaScript** (arquitectura estructurada y modular).
 * **Servidor Web & Proxy:** Nginx (Servidor de alto rendimiento para tráfico y estáticos).
