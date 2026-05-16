@@ -24,8 +24,9 @@ services:
     environment:
       - DB_HOST=db
       - DB_NAME=imtracker
-      - DB_USER=${DB_USER:-imtracker_user}
-      - DB_PASSWORD=${DB_PASSWORD:-imtracker_pass}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - SECRET_KEY=${SECRET_KEY}
       - DJANGO_SETTINGS_MODULE=IncidenciasApp.settings
     depends_on:
       - db
@@ -38,7 +39,6 @@ services:
     environment:
       - GENERIC_TIMEZONE=Europe/Madrid
       - TZ=Europe/Madrid
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - n8n_data_prod:/home/node/.n8n
 
