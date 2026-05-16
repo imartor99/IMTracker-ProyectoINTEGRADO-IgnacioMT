@@ -42,11 +42,11 @@ if _csrf_origins:
     CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
 
 if not SECRET_KEY:
-    # Si no hay SECRET_KEY, solo fallamos si no estamos en modo test
-    if 'test' not in sys.argv:
-        raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
+    # Permitimos clave vacía solo en tests o en el entorno de GitHub Actions (para documentación, etc.)
+    if 'test' in sys.argv or os.environ.get('GITHUB_ACTIONS') == 'true':
+        SECRET_KEY = 'django-insecure-test-key-for-ci-cd'
     else:
-        SECRET_KEY = 'test-key-ci-cd'
+        raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
 
 
 # Application definition
