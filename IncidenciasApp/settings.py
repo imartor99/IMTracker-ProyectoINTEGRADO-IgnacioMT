@@ -222,60 +222,23 @@ LOGGING = {
 
     # Handlers: destinos donde se escriben los logs
     'handlers': {
-        # Consola (para desarrollo, muestra los mensajes en el terminal de Docker)
+        # Consola (MUY importante para ver errores en Docker/AWS)
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-        # Fichero de errores generales de la aplicación
-        'file_general': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': LOG_DIR / 'django_general.log',
             'formatter': 'verbose',
-            'encoding': 'utf-8',
-        },
-        # Fichero de seguridad (login, logout, CSRF, permisos)
-        'file_security': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOG_DIR / 'django_security.log',
-            'formatter': 'verbose',
-            'encoding': 'utf-8',
-        },
-        # Fichero de peticiones HTTP con error (4xx, 5xx)
-        'file_requests': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': LOG_DIR / 'django_requests.log',
-            'formatter': 'verbose',
-            'encoding': 'utf-8',
         },
     },
 
     # Loggers: categorías que capturan los eventos
     'loggers': {
-        # Logger principal de Django
         'django': {
-            'handlers': ['console', 'file_general'],
-            'level': 'WARNING',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
-        # Logger de seguridad (intentos de login fallidos, CSRF, etc.)
-        'django.security': {
-            'handlers': ['file_security'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        # Logger de peticiones HTTP
-        'django.request': {
-            'handlers': ['file_requests'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-        # Logger personalizado para nuestra app 'incidencias'
         'incidencias': {
-            'handlers': ['console', 'file_general'],
+            'handlers': ['console'],
             'level': 'INFO',
             'propagate': False,
         },
