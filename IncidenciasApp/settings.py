@@ -53,6 +53,9 @@ if not SECRET_KEY:
     else:
         raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
 
+# Confiar en el encabezado X-Forwarded-Proto enviado por Nginx
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
