@@ -114,16 +114,37 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
-          # 2.5 Limpieza TOTAL de Docker antes de descargar nada nuevo
-          sudo docker system prune -a --volumes -f
+          # 2.5 Limpieza de imágenes huérfanas (sin borrar volúmenes de PostgreSQL)
+          sudo docker image prune -f
           
-          # 3. Levantar la aplicación (Usando configuración de PROD sin Ollama)
-          sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} SECRET_KEY=${{ secrets.SECRET_KEY }} docker-compose -f docker-compose.prod.yml down
-          sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} SECRET_KEY=${{ secrets.SECRET_KEY }} docker-compose -f docker-compose.prod.yml up --build -d
+          # 2.6 Archivo de entorno para docker-compose (mismas vars en up, exec y migrate)
+          {
+            echo "DB_USER=${{ secrets.DB_USER }}"
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}"
+            echo "DJANGO_DEBUG=false"
+            echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}"
+            echo "CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }}"
+          } > .env.prod
+          chmod 600 .env.prod
           
-          # 4. Preparar estáticos y ejecutar migraciones
-          sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
-          sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+          # 3. Levantar la aplicación (PROD sin Ollama)
+          sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml down
+          sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml up --build -d
           
-          # 5. Imprimir logs del servidor para ver posibles errores (Internal Server Error)
-          sudo docker logs imtracker_web_prod --tail 50
+          # 4. Esperar a que el contenedor web esté listo
+          sleep 15
+          
+          # 5. Estáticos, migraciones y comprobación Django
+          sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
+          sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+          sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml exec -T web python manage.py check --deploy || true
+          
+          # 6. Probar HTTP y mostrar logs si falla
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/login/ || echo "000")
+          echo "GET /login/ -> HTTP $HTTP_CODE"
+          sudo docker logs imtracker_web_prod --tail 100
+          if [ "$HTTP_CODE" != "200" ]; then
+            sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml logs web --tail 80
+            exit 1
+          fi

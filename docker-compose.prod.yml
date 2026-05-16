@@ -12,11 +12,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d imtracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   web:
     build: .
     container_name: imtracker_web_prod
-    command: gunicorn IncidenciasApp.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn IncidenciasApp.wsgi:application --bind 0.0.0.0:8000 --timeout 120 --log-level info
     volumes:
       - .:/app
     ports:
@@ -28,8 +33,13 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - SECRET_KEY=${SECRET_KEY}
       - DJANGO_SETTINGS_MODULE=IncidenciasApp.settings
+      - DJANGO_DEBUG=${DJANGO_DEBUG:-false}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-*}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
   n8n:
     image: n8nio/n8n:latest
