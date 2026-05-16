@@ -114,8 +114,10 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
-          # 2.5 Limpieza de imágenes huérfanas (sin borrar volúmenes de PostgreSQL)
-          sudo docker image prune -f
+          # 2.5 Limpieza profunda de Docker (sin borrar volúmenes de persistencia)
+          sudo docker system prune -a -f
+          sudo apt-get clean
+          sudo rm -rf /tmp/*
           
           # 2.6 Archivo de entorno para docker-compose (mismas vars en up, exec y migrate)
           {
