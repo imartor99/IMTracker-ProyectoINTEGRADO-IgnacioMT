@@ -36,6 +36,11 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 _allowed = os.environ.get('ALLOWED_HOSTS', '*').strip()
 ALLOWED_HOSTS = ['*'] if _allowed in ('', '*') else [h.strip() for h in _allowed.split(',') if h.strip()]
+# Siempre permitimos localhost para comprobaciones internas del servidor
+if '127.0.0.1' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('127.0.0.1')
+if 'localhost' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('localhost')
 
 _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
 if _csrf_origins:
