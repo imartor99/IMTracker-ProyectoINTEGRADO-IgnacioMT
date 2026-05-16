@@ -56,6 +56,7 @@ El proyecto cuenta con una canalización de **Integración y Despliegue Continuo
     2. Realiza una limpieza agresiva de recursos (`docker system prune`) para optimizar el almacenamiento.
     3. Descarga las imágenes de forma serializada para proteger la estabilidad del hardware.
     4. Reconstruye el entorno, aplica migraciones y recolecta archivos estáticos automáticamente.
+* **Documentación Automática:** El workflow genera documentación técnica de Python y JavaScript en cada ejecución, disponible para descarga como un archivo ZIP en la sección "Artifacts" de la pestaña "Actions" en GitHub.
 * **Monitorización:** Sistema de logs físicos y comprobaciones de despliegue (Health Checks).
 
 ---
