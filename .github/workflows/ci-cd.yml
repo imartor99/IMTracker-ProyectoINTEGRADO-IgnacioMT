@@ -125,6 +125,8 @@ jobs:
             echo "DJANGO_DEBUG=false"
             echo "ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}"
             echo "CSRF_TRUSTED_ORIGINS=${{ secrets.CSRF_TRUSTED_ORIGINS }}"
+            echo "EMAIL_HOST_USER=${{ secrets.EMAIL_HOST_USER }}"
+            echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}"
           } > .env.prod
           chmod 600 .env.prod
           
