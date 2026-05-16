@@ -17,8 +17,8 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde el archivo .env
-load_dotenv()
+# Cargar variables de entorno desde el archivo .env (Ruta absoluta para evitar fallos en Docker)
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -53,6 +53,7 @@ AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'  #le indica a Django que, e
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Servir estáticos en PROD
     'django.contrib.sessions.middleware.SessionMiddleware',
     # He añadido LocaleMiddleware justo después del SessionMiddleware para que Django reconozca el idioma del usuario
     'django.middleware.locale.LocaleMiddleware',
@@ -90,7 +91,7 @@ WSGI_APPLICATION = 'IncidenciasApp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME', 'imtracker'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
@@ -151,6 +152,12 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'incidencias/static'),
 ]
+
+# Carpeta donde se guardarán los estáticos al hacer collectstatic (Necesario para WhiteNoise)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Optimización de almacenamiento para WhiteNoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración de Correo Electrónico
 # Usamos Gmail SMTP para enviar correos reales (Credenciales cargadas desde .env)

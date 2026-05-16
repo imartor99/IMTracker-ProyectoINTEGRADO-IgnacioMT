@@ -121,7 +121,8 @@ jobs:
           sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} docker-compose -f docker-compose.prod.yml down
           sudo DB_USER=${{ secrets.DB_USER }} DB_PASSWORD=${{ secrets.DB_PASSWORD }} GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} docker-compose -f docker-compose.prod.yml up --build -d
           
-          # 4. Ejecutar migraciones
+          # 4. Preparar estáticos y ejecutar migraciones
+          sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py collectstatic --noinput
           sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
           
           # 5. Imprimir logs del servidor para ver posibles errores (Internal Server Error)
