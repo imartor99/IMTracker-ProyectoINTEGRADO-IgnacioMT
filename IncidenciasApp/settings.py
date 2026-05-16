@@ -228,26 +228,52 @@ LOGGING = {
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },
-
-    # Handlers: destinos donde se escriben los logs
     'handlers': {
-        # Consola (MUY importante para ver errores en Docker/AWS)
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file_general': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_general.log',
             'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'file_security': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_security.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'file_requests': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': LOG_DIR / 'django_requests.log',
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
         },
     },
-
-    # Loggers: categorías que capturan los eventos
     'loggers': {
         'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
+            'handlers': ['console', 'file_general'],
+            'level': 'WARNING',
             'propagate': True,
         },
+        'django.security': {
+            'handlers': ['file_security'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['file_requests'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
         'incidencias': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file_general'],
             'level': 'INFO',
             'propagate': False,
         },
