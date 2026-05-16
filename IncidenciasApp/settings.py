@@ -17,11 +17,11 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde el archivo .env (Ruta absoluta para evitar fallos en Docker)
-load_dotenv(os.path.join(BASE_DIR, '.env'))
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Cargar variables de entorno desde el archivo .env (Ruta absoluta para evitar fallos en Docker)
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 
 # Quick-start development settings - unsuitable for production
