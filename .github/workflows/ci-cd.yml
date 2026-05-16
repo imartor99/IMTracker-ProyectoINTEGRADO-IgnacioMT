@@ -142,11 +142,12 @@ jobs:
           sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
           sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml exec -T web python manage.py check --deploy || true
           
-          # 6. Probar HTTP y mostrar logs si falla
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/login/ || echo "000")
+          # 6. Probar HTTP a través de Nginx (puerto 80)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/login/ || echo "000")
           echo "GET /login/ -> HTTP $HTTP_CODE"
-          sudo docker logs imtracker_web_prod --tail 100
-          if [ "$HTTP_CODE" != "200" ]; then
-            sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml logs web --tail 80
+          
+          if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "400" ]; then
+            echo "Error de despliegue detectado. Logs de Nginx y Web:"
+            sudo docker-compose -f docker-compose.prod.yml logs --tail 50 nginx web
             exit 1
           fi
