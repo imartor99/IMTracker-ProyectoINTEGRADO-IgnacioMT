@@ -9,7 +9,7 @@ def enviar_webhook_n8n(sender, instance, created, **kwargs):
     # (no queremos enviar el webhook cada vez que editemos algo)
     if created:
         # Esta URL es la que n8n usará para escuchar en su contenedor
-        webhook_url = "http://imtracker_n8n:5678/webhook/incidencia"
+        webhook_url = "http://imtracker_n8n:5678/webhook-test/incidencia"
         
         # Empaquetamos los datos que necesita la IA
         data = {
