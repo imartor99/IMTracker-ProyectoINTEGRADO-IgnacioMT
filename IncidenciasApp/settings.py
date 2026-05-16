@@ -30,10 +30,18 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# En producción (AWS): DJANGO_DEBUG=false. En local puede omitirse o ser true.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+_allowed = os.environ.get('ALLOWED_HOSTS', '*').strip()
+ALLOWED_HOSTS = ['*'] if _allowed in ('', '*') else [h.strip() for h in _allowed.split(',') if h.strip()]
+
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').strip()
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
+
+if not SECRET_KEY:
+    raise ValueError('SECRET_KEY no está definida. Configúrala en GitHub Secrets o en .env.prod')
 
 
 # Application definition
@@ -53,7 +61,7 @@ AUTH_USER_MODEL = 'incidencias.UsuarioPersonalizado'  #le indica a Django que, e
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Servir estáticos en PROD
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # He añadido LocaleMiddleware justo después del SessionMiddleware para que Django reconozca el idioma del usuario
     'django.middleware.locale.LocaleMiddleware',
@@ -95,7 +103,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME', 'imtracker'),
         'USER': os.environ.get('DB_USER', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'HOST': os.environ.get('DB_HOST', 'db'),  # 'db' es el estándar en Docker local
         'PORT': '5432',
     }
 }
@@ -156,8 +164,9 @@ STATICFILES_DIRS = [
 # Carpeta donde se guardarán los estáticos al hacer collectstatic (Necesario para WhiteNoise)
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Optimización de almacenamiento para WhiteNoise
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Solo usamos WhiteNoise para comprimir si no estamos en modo DEBUG (Local)
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Configuración de Correo Electrónico
 # Usamos Gmail SMTP para enviar correos reales (Credenciales cargadas desde .env)
@@ -243,4 +252,4 @@ LOGGING = {
             'propagate': False,
         },
     },
-}
+}
