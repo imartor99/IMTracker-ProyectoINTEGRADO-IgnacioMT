@@ -1,6 +1,18 @@
 # IMTracker - Sistema de Gestión de Incidencias
 
-**IMTracker** es una aplicación web diseñada para facilitar la creación, gestión y seguimiento de incidencias de IT. Este proyecto está siendo desarrollado como Trabajo de Fin de Grado (TFG) para el ciclo de 2º DAW.
+**IMTracker** es una aplicación web FullStack diseñada para facilitar la creación, gestión y seguimiento de incidencias de IT. Este proyecto está siendo desarrollado como Proyecto Integrado para el ciclo de 2º DAW.
+
+## Objetivos y Justificación
+
+El proyecto nace de la necesidad de **optimizar la comunicación** entre los departamentos de una empresa y el equipo de soporte técnico. Los objetivos principales son:
+
+*   **Centralización**: Eliminar el caos de correos y llamadas, unificando todas las peticiones en un solo panel de control.
+*   **Eficiencia con IA**: Reducir el tiempo de resolución mediante un chatbot inteligente que asiste al usuario antes de que el técnico intervenga.
+*   **Trazabilidad**: Mantener un historial completo de cada incidencia para auditorías y mejora continua.
+*   **Escalabilidad**: Construir una arquitectura moderna basada en contenedores (Docker) capaz de desplegarse en la nube (AWS) con facilidad.
+
+---
+
 
 ## Características Principales 
 
