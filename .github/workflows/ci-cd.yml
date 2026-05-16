@@ -127,3 +127,6 @@ jobs:
           
           # 4. Ejecutar migraciones
           sudo docker-compose -f docker-compose.prod.yml exec -T web python manage.py migrate --noinput
+          
+          # 5. Imprimir logs del servidor para ver posibles errores (Internal Server Error)
+          sudo docker logs imtracker_web_prod --tail 50
