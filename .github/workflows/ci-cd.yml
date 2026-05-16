@@ -85,26 +85,24 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          # 0. Limpieza agresiva de disco y SWAP mínimo (512MB)
+          # 0. SWAP estable (1GB)
           sudo swapoff /swapfile || true
           sudo rm -f /swapfile
-          sudo fallocate -l 512M /swapfile
+          sudo fallocate -l 1G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile || true
           
-          # Limpiar logs de sistema y paquetes para ganar espacio crítico
+          # Limpiar logs de sistema para ganar espacio crítico
           sudo journalctl --vacuum-time=1s
           sudo apt-get clean
-          sudo apt-get autoremove -y
-          sudo rm -rf /var/lib/apt/lists/*
-
+          
           # 1. Instalar Docker y Docker Compose si no existen
           if ! [ -x "$(command -v docker)" ]; then
             sudo apt update && sudo apt install -y docker.io docker-compose
             sudo usermod -aG docker ${{ secrets.EC2_USER }}
           fi
-
+          
           # 2. Preparar carpeta y actualizar código
           mkdir -p ~/IMTracker
           cd ~/IMTracker
@@ -114,12 +112,14 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
-          # 2.5 Limpieza profunda de Docker (sin borrar volúmenes de persistencia)
+          # 2.5 Limpieza profunda antes de descargar nada nuevo
           sudo docker system prune -a -f
-          sudo apt-get clean
-          sudo rm -rf /tmp/*
           
-          # 2.6 Archivo de entorno para docker-compose (mismas vars en up, exec y migrate)
+          # 2.6 Descargar imágenes necesarias por separado
+          sudo docker pull postgres:15
+          sudo docker pull nginx:stable-alpine
+          
+          # 2.7 Archivo de entorno
           {
             echo "DB_USER=${{ secrets.DB_USER }}"
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}"
@@ -132,7 +132,7 @@ jobs:
           } > .env.prod
           chmod 600 .env.prod
           
-          # 3. Levantar la aplicación (PROD sin Ollama)
+          # 3. Levantar la aplicación
           sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml down
           sudo docker-compose --env-file .env.prod -f docker-compose.prod.yml up --build -d
           
