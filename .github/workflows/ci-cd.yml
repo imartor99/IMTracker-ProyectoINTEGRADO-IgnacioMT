@@ -78,7 +78,7 @@ jobs:
   # 3. JOB DE DESPLIEGUE 
   deploy:
     needs: docs
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
     - name: Desplegar en EC2 vía SSH
